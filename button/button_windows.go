@@ -4,17 +4,18 @@ import (
 	"github.com/kevin-yuan/rw"
 	"github.com/kevin-yuan/rw/util"
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
 	"github.com/kevin-yuan/rw/event"
+	"unsafe"
 )
 
-var clsName ustrings.Unicode
+var clsName unsafe.Pointer
 
 func (m *HandleManager) Create(b util.Bundle) native.Handle {
 	if clsName == nil {
-		clsName = ustrings.ToUnicode("BUTTON")
+		clsName = ustr.CStringUtf16("BUTTON")
 	}
 	return window.CreateWindowEx(0, uintptr(clsName), "Button", window.WS_CHILD|window.WS_TABSTOP|window.WS_VISIBLE, 0, 0, 100, 62, winutil.DockerWindow(), 0, window.GetModuleHandle(nil), nil)
 }

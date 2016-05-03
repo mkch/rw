@@ -7,7 +7,7 @@ import "C"
 import (
     "unsafe"
     "github.com/kevin-yuan/rw/native"
-    "github.com/kevin-yuan/rw/internal/mem"
+    "github.com/kevin-yuan/rw/util/ustr"
     "github.com/kevin-yuan/rw/internal/native/windows/window"
     "github.com/kevin-yuan/rw/internal/native/windows/nativeutil")
 
@@ -47,7 +47,7 @@ func CreateDialog(instance native.Handle, parent native.Handle, style uint, exSt
     // https://msdn.microsoft.com/en-us/library/windows/desktop/ms645394(v=vs.85).aspx
     // Remarks:
     // "In a standard template for a dialog box, the DLGTEMPLATE structure is always immediately followed by three variable-length arrays that specify the menu, class, and title for the dialog box. "
-    tmpl := (*C.DLGTEMPLATE)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.DLGTEMPLATE{})+unsafe.Sizeof(C.WORD(0))*3)))
+    tmpl := (*C.DLGTEMPLATE)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.DLGTEMPLATE{})+unsafe.Sizeof(C.WORD(0))*3)[0]))
     tmpl.style = C.DWORD(style)
     tmpl.dwExtendedStyle = C.DWORD(exStyle)
     // cgo: could not determine kind of name for C.DialogBoxIndirect

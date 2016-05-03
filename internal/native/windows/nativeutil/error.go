@@ -7,7 +7,7 @@ import "C"
 import (
     "unsafe"
     "fmt"
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+    "github.com/kevin-yuan/rw/util/ustr"
 
 )
 
@@ -15,14 +15,13 @@ func GetLastError() uint {
     return uint(C.GetLastError())
 }
 
-var lastErrorMessageBuffer C.LPWSTR
 
 func GetLastErrorMessage(lastError uint) (errorMessage string) {
     errCode := C.DWORD(lastError)
-	lastErrorMessageBuffer = nil
+	var unsafe.Pointer lastErrorMessageBuffer
 	if C.FormatMessage(C.FORMAT_MESSAGE_ALLOCATE_BUFFER|C.FORMAT_MESSAGE_FROM_SYSTEM, nil, errCode, 0, C.LPWSTR(unsafe.Pointer(&lastErrorMessageBuffer)), 0, nil) != 0 && lastErrorMessageBuffer != nil {
 		defer C.LocalFree(C.HLOCAL(lastErrorMessageBuffer))
-		return ustrings.FromUnicode(ustrings.Unicode(lastErrorMessageBuffer))
+		return ustr.GoStringFromUtf16(lastErrorMessageBuffer)
 	}
     panic("FormatMessage failed!")
 }

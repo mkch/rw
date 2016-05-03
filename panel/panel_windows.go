@@ -3,17 +3,17 @@ package panel
 import (
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/util"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
 )
 
-var clsName ustrings.Unicode
+var clsName unsafe.Pointer
 
 func (m *HandleManager) Create(util.Bundle) native.Handle {
 	moduleHandle := window.GetModuleHandle(nil)
 	if clsName == nil {
-		clsName = ustrings.ToUnicode("rw.Panel")
+		clsName = ustr.CStringUtf16("rw.Panel")
 		window.RegisterClassEx(&window.WndClassEx {
 			WndProc: window.DefWindowProcPtr(),
 			Instance: moduleHandle,

@@ -4,7 +4,7 @@ import (
 	"unsafe"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 )
 
@@ -12,13 +12,13 @@ import (
 //#include "dockwin.h"
 import "C"
 
-var dockerWinClassName ustrings.Unicode
-var dockerWinHandle native.Handle
+var dockerWinClassName unsafe.Pointer
+var dockerWinHandle unsafe.Pointer
 
 func DockerWindow() native.Handle {
 	if dockerWinHandle == 0 {
 		if dockerWinClassName == nil {
-			dockerWinClassName = ustrings.ToUnicode("rw.Dock")
+			dockerWinClassName = ustr.CStringUtf16("rw.Dock")
 			window.RegisterClassEx(&window.WndClassEx {
 				WndProc: unsafe.Pointer(C.GetDockWndProc()),
 				Instance: window.GetModuleHandle(nil),

@@ -7,7 +7,7 @@ import (
 	"github.com/kevin-yuan/rw/internal/native/windows/post"
 	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"unsafe"
 	"fmt"
 	"bytes"
