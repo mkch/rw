@@ -6,7 +6,7 @@ import "C"
 
 import (
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 func NSControl_initWithFrame(c native.Handle, x, y, w, h int) native.Handle {
@@ -31,7 +31,7 @@ func NSControl_setAction(c native.Handle, sel uintptr) {
 }
 
 func NSControl_setStringValue(c native.Handle, value string) {
-	C.NSControl_setStringValue(C.OBJC_PTR(c), (*C.char)(mem.CStringAutoFree(value)))
+	C.NSControl_setStringValue(C.OBJC_PTR(c), (*C.char)(ustr.CStringUtf8(value)))
 }
 
 func NSControl_stringValue(c native.Handle) string {

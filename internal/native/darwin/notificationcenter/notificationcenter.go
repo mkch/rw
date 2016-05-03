@@ -6,7 +6,7 @@ import "C"
 
 import (
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 func NSNotificationCenter_defaultCenter() native.Handle {
@@ -14,5 +14,5 @@ func NSNotificationCenter_defaultCenter() native.Handle {
 }
 
 func NSNotificationCenter_addObserver_selector_name_object(c native.Handle, observer native.Handle, sel uintptr, name string, object native.Handle) {
-	C.NSNotificationCenter_addObserver_selector_name_object(C.OBJC_PTR(c), C.OBJC_PTR(observer), C.PVOID(sel), (*C.char)(mem.CStringAutoFree(name)), C.OBJC_PTR(object))
+	C.NSNotificationCenter_addObserver_selector_name_object(C.OBJC_PTR(c), C.OBJC_PTR(observer), C.PVOID(sel), (*C.char)(ustr.CStringUtf8(name)), C.OBJC_PTR(object))
 }
