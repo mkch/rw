@@ -6,6 +6,7 @@ import (
 	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/util"
+	"unsafe"
 )
 
 type winContentHandleManager struct {

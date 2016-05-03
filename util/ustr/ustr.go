@@ -25,12 +25,11 @@ func CStringUtf16(str string) unsafe.Pointer {
 }
 
 // GoStringFromUtf16 converts a UTF-16 C string(0 terminated []C.short) to go string.
-func GoStringFromUtf16(str unsafe.Pointer, length uint) string {
+// BUG: Hard coded 0x0FFFFFFF.
+func GoStringFromUtf16(str unsafe.Pointer) string {
 	var count uint
 	for p:=(*uint16)(str); *p!=0; p=(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(p))+unsafe.Sizeof(uint16(0)))) {
 		count++
 	}
-	// (1 << 32) - 1: go/src/cmd/compile/internal/x86/galign.go
-	// BUG: Should be 1 << 50 on 64 bit machine. go/src/cmd/compile/internal/amd64/galign.go:
-	return string(utf16.Decode((*[(1 << 32) - 1]uint16)(str)[:count]))
+	return string(utf16.Decode((*[0x0FFFFFFF]uint16)(str)[:count]))
 }

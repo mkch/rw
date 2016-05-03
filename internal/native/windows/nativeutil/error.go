@@ -18,7 +18,7 @@ func GetLastError() uint {
 
 func GetLastErrorMessage(lastError uint) (errorMessage string) {
     errCode := C.DWORD(lastError)
-	var unsafe.Pointer lastErrorMessageBuffer
+	var lastErrorMessageBuffer unsafe.Pointer
 	if C.FormatMessage(C.FORMAT_MESSAGE_ALLOCATE_BUFFER|C.FORMAT_MESSAGE_FROM_SYSTEM, nil, errCode, 0, C.LPWSTR(unsafe.Pointer(&lastErrorMessageBuffer)), 0, nil) != 0 && lastErrorMessageBuffer != nil {
 		defer C.LocalFree(C.HLOCAL(lastErrorMessageBuffer))
 		return ustr.GoStringFromUtf16(lastErrorMessageBuffer)

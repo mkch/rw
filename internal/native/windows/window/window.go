@@ -10,7 +10,6 @@ import (
     "github.com/kevin-yuan/rw/native"
     "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
     "github.com/kevin-yuan/rw/util/ustr"
-    "github.com/kevin-yuan/rw/util/ustr"
 )
 
 type NmHdr struct {
@@ -496,7 +495,7 @@ type PMsg uintptr
 
 // Must deallocated after use with PMsg.Free.
 func AllocMsg() PMsg {
-    return PMsg(mem.Alloc(unsafe.Sizeof(C.MSG{})))
+    return PMsg(C.malloc(C.size_t(unsafe.Sizeof(C.MSG{}))))
 }
 
 func (msg PMsg) pMsg() C.PMSG {
@@ -504,7 +503,7 @@ func (msg PMsg) pMsg() C.PMSG {
 }
 
 func (msg PMsg) Free() {
-    mem.Free(unsafe.Pointer(msg))
+    C.free(unsafe.Pointer(msg))
 }
 
 func (msg PMsg) Hwnd() native.Handle {

@@ -2,6 +2,7 @@ package rw
 
 import (
 	"fmt"
+	"unsafe"
 	"github.com/kevin-yuan/rw/event"
 	"github.com/kevin-yuan/rw/internal/native/windows/acceltable"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"

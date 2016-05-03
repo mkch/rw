@@ -7,9 +7,9 @@ import "C"
 import (
     "unsafe"
     "github.com/kevin-yuan/rw/native"
-    "github.com/kevin-yuan/rw/util/ustr"
     "github.com/kevin-yuan/rw/internal/native/windows/window"
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil")
+    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
+)
 
 const (
 	WM_INITDIALOG = uint(C.WM_INITDIALOG)
