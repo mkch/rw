@@ -27,7 +27,7 @@ func main() {
 	}
 
 	var file = flag.Arg(0)
-	if makegui(file) && changeIcon(file, icon) {
+	if makegui(file) && (len(icon) == 0 || changeIcon(file, icon)) {
 		os.Exit(0)
 	}
 	os.Exit(-2)
