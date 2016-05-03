@@ -2,7 +2,7 @@ package rw
 
 import (
 	"github.com/kevin-yuan/rw/internal/native/windows/menu"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 	"github.com/kevin-yuan/rw/util"
 	"github.com/kevin-yuan/rw/native"
@@ -133,7 +133,7 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 	} else {
 		menuItemInfo = &menu.MenuItemInfo{
 			Mask:     menu.MIIM_STRING | menu.MIIM_ID | menu.MIIM_STATE,
-			TypeData: uintptr(ustrings.ToUnicodeAutoFree(item.displayTitle())),
+			TypeData: uintptr(ustr.CStringUtf16(item.displayTitle())),
 			State:    menuItemStateValue(item),
 		}
 		if submenu := item.Submenu(); submenu != nil {

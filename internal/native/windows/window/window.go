@@ -9,8 +9,7 @@ import (
     "github.com/kevin-yuan/rw/internal/stackescape"
     "github.com/kevin-yuan/rw/native"
     "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
-    "github.com/kevin-yuan/rw/internal/mem"
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+    "github.com/kevin-yuan/rw/util/ustr"
 )
 
 type NmHdr struct {
@@ -38,7 +37,7 @@ func LOWORD(v uint) uint16 {
 
 func GetModuleHandle(moduleName *string) native.Handle {
     if moduleName != nil {
-        unicodeModuleName := ustrings.ToUnicodeAutoFree(*moduleName)
+        unicodeModuleName := ustr.CStringUtf16(*moduleName)
         return native.Handle(C.Ptr(C.GetModuleHandle(C.LPWSTR(unicodeModuleName))))
     }
     return native.Handle(C.Ptr(C.GetModuleHandle(nil)))
@@ -75,7 +74,7 @@ type MonitorInfo struct {
 }
 
 func GetMonitorInfo(monitor native.Handle) *MonitorInfo {
-    info := (*C.MONITORINFO)(mem.AllocAutoFree(unsafe.Sizeof(C.MONITORINFO{})))
+    info := (*C.MONITORINFO)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.MONITORINFO{}))[0]))
     info.cbSize = C.DWORD(unsafe.Sizeof(C.MONITORINFO{}))
     if C.GetMonitorInfo(C.HMONITOR(C.PVOID(monitor)), info) == 0 {
         nativeutil.PanicWithLastError()
@@ -89,7 +88,7 @@ func GetMonitorInfo(monitor native.Handle) *MonitorInfo {
 
 // Call C.GetMonitor with MONITORINFOEX as the 2nd argument, so the device name is retrieved.
 func GetMonitorInfoEx(monitor native.Handle) (monitorInfo *MonitorInfo, deviceName string) {
-    info := (*C.MONITORINFOEX)(mem.AllocAutoFree(unsafe.Sizeof(C.MONITORINFOEX{})))
+    info := (*C.MONITORINFOEX)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.MONITORINFOEX{}))[0]))
     info.cbSize = C.DWORD(unsafe.Sizeof(C.MONITORINFOEX{}))
     if C.GetMonitorInfo(C.HMONITOR(C.PVOID(monitor)), (*C.MONITORINFO)(C.PVOID(info))) == 0 {
         nativeutil.PanicWithLastError()
@@ -99,7 +98,7 @@ func GetMonitorInfoEx(monitor native.Handle) (monitorInfo *MonitorInfo, deviceNa
         WorkRectLeft: int(info.rcWork.left), WorkRectTop: int(info.rcWork.top), WorkRectWidth: int(info.rcWork.right-info.rcWork.left), WorkRectHeight: int(info.rcWork.bottom-info.rcWork.top),
         Flags: uint(info.dwFlags),
     },
-    ustrings.FromUnicode(ustrings.Unicode(&info.szDevice[0]))
+    ustr.GoStringFromUtf16(unsafe.Pointer(&info.szDevice[0]))
 }
 
 const (
@@ -117,7 +116,7 @@ var (
 )
 
 func ScreenToClient(hwnd native.Handle, x, y *int) {
-    var pt = (*C.POINT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.POINT{}))))
+    var pt = (*C.POINT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.POINT{}))[0]))
     pt.x, pt.y = C.LONG(*x), C.LONG(*y)
     if C.ScreenToClient(C.HWND(C.PVOID(hwnd)), pt) == 0 {
         nativeutil.PanicWithLastError()
@@ -126,7 +125,7 @@ func ScreenToClient(hwnd native.Handle, x, y *int) {
 }
 
 func ClientToScreen(hwnd native.Handle, x, y *int) {
-    var pt = (*C.POINT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.POINT{}))))
+    var pt = (*C.POINT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.POINT{}))[0]))
     pt.x, pt.y = C.LONG(*x), C.LONG(*y)
     if C.ClientToScreen(C.HWND(C.PVOID(hwnd)), pt) == 0 {
         nativeutil.PanicWithLastError()
@@ -137,7 +136,7 @@ func ClientToScreen(hwnd native.Handle, x, y *int) {
 func CreateWindowEx(exStyle uint, className uintptr, windowName string, style uint, 
     x int, y int, width int, height int, parent native.Handle, menu native.Handle, instance native.Handle, lParam unsafe.Pointer) native.Handle {
 
-    pWindowName := ustrings.ToUnicodeAutoFree(windowName)
+    pWindowName := ustr.CStringUtf16(windowName)
 
     hwnd := C.CreateWindowEx(C.DWORD(exStyle), C.LPWSTR(C.PVOID(className)), C.LPWSTR(pWindowName), C.DWORD(style), C.int(x), C.int(y), C.int(width), C.int(height), C.HWND(C.Ptr(parent)), C.HMENU(C.Ptr(menu)), C.HMODULE(C.Ptr(instance)), C.LPVOID(lParam))
     if hwnd == nil {
@@ -167,9 +166,9 @@ func GetWindowText(handle native.Handle) string {
     if len == 0 {
         return ""
     }
-    buf := C.LPWSTR(mem.AllocAutoFree(uintptr(C.size_t(int(len+1)*int(unsafe.Sizeof(C.WCHAR(0)))))))
+    buf := C.LPWSTR(unsafe.Pointer(&make([]byte, uintptr(len+1)*unsafe.Sizeof(C.WCHAR(0)))[0]))
     C.GetWindowText(C.HWND(C.Ptr(handle)), buf, len+1)
-    return ustrings.FromUnicode(ustrings.Unicode(buf))
+    return ustr.GoStringFromUtf16(unsafe.Pointer(buf))
 }
 
 func PostQuitMessage(exitCode int) {
@@ -183,7 +182,7 @@ func PostMessage(h native.Handle, msg uint, wParam uintptr, lParam uintptr) {
 }
 
 func GetClientRect(h native.Handle) (x, y, width, height int) {
-    var rect = (*C.RECT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.RECT{}))))
+    var rect = (*C.RECT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.RECT{}))[0]))
     if C.GetClientRect(C.HWND(C.Ptr(h)), rect) == 0 {
         nativeutil.PanicWithLastError()
     }
@@ -192,7 +191,7 @@ func GetClientRect(h native.Handle) (x, y, width, height int) {
 
 // The dimensions are given in screen coordinates
 func GetWindowRect(h native.Handle) (x, y, width, height int) {
-    var rect = (*C.RECT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.RECT{}))))
+    var rect = (*C.RECT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.RECT{}))[0]))
     if C.GetWindowRect(C.HWND(C.Ptr(h)), rect) == 0 {
         nativeutil.PanicWithLastError()
     }
@@ -201,7 +200,7 @@ func GetWindowRect(h native.Handle) (x, y, width, height int) {
 
 // The dimensions are given in parent client coordinates
 func GetChildWindowRect(handle, parent native.Handle)(x, y, width, height int) {
-    var rect = (*C.RECT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.RECT{}))))
+    var rect = (*C.RECT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.RECT{}))[0]))
     if C.GetWindowRect(C.HWND(C.Ptr(handle)), rect) == 0 ||
         C.MapWindowPoints(nil, C.HWND(C.Ptr(parent)), C.LPPOINT(unsafe.Pointer(&rect)), 2) == 0{
         nativeutil.PanicWithLastError()
@@ -252,7 +251,7 @@ func SetWindowPos(h, insertAfter native.Handle, x, y, cx, cy int, flags uint) {
 }
 
 func SetWindowText(h native.Handle, text string) {
-    if C.SetWindowText(C.HWND(C.Ptr(h)), C.LPWSTR(ustrings.ToUnicodeAutoFree(text))) == 0 {
+    if C.SetWindowText(C.HWND(C.Ptr(h)), C.LPWSTR(ustr.CStringUtf16(text))) == 0 {
         nativeutil.PanicWithLastError()
     }
 }
@@ -320,7 +319,7 @@ var(
 )
 
 func InvalidateRect(hwnd native.Handle, l, t, r, b int, erase bool) bool {
-    var rect = (*C.RECT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.RECT{}))))
+    var rect = (*C.RECT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.RECT{}))[0]))
     rect.left = C.LONG(l); rect.top = C.LONG(t); rect.right = C.LONG(r); rect.bottom = C.LONG(b);
     var bErase C.BOOL = 0
     if erase {
@@ -346,7 +345,7 @@ func SetProp(handle native.Handle, prop uintptr, data uintptr) bool {
 }
 
 func SetPropString(handle native.Handle, prop string, data uintptr) bool {
-    return C.SetProp(C.HWND(C.Ptr(handle)), C.LPWSTR(ustrings.ToUnicodeAutoFree(prop)), C.HANDLE(data)) != 0
+    return C.SetProp(C.HWND(C.Ptr(handle)), C.LPWSTR(ustr.CStringUtf16(prop)), C.HANDLE(data)) != 0
 }
 
 func RemoveProp(handle native.Handle, prop uintptr) uintptr {
@@ -354,11 +353,11 @@ func RemoveProp(handle native.Handle, prop uintptr) uintptr {
 }
 
 func RemovePropString(handle native.Handle, prop string) uintptr {
-    return RemoveProp(handle, uintptr(ustrings.ToUnicodeAutoFree(prop)))
+    return RemoveProp(handle, uintptr(ustr.CStringUtf16(prop)))
 }
 
 func GetPropString(handle native.Handle, prop string) uintptr {
-    return GetProp(handle, uintptr(ustrings.ToUnicodeAutoFree(prop)))
+    return GetProp(handle, uintptr(ustr.CStringUtf16(prop)))
 }
 
 func GetProp(handle native.Handle, prop uintptr) uintptr {
@@ -444,13 +443,13 @@ type WndClassEx struct {
     Icon        native.Handle
     Cursor      native.Handle
     Background  native.Handle
-    MenuName    ustrings.Unicode
-    ClassName   ustrings.Unicode
+    MenuName    unsafe.Pointer
+    ClassName   unsafe.Pointer
     IconSm      native.Handle
 }
 
 func newWNDCLASSEX(cls *WndClassEx ) *C.WNDCLASSEX {
-    p := (*C.WNDCLASSEX)(mem.AllocAutoFree(unsafe.Sizeof(C.WNDCLASSEX{})))
+    p := (*C.WNDCLASSEX)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.WNDCLASSEX{}))[0]))
     p.cbSize = C.UINT(unsafe.Sizeof(C.WNDCLASSEX{}))
     p.style = C.UINT(cls.Style)
     p.lpfnWndProc = C.WNDPROC(cls.WndProc)
@@ -496,7 +495,7 @@ type PMsg uintptr
 
 // Must deallocated after use with PMsg.Free.
 func AllocMsg() PMsg {
-    return PMsg(mem.Alloc(unsafe.Sizeof(C.MSG{})))
+    return PMsg(C.malloc(C.size_t(unsafe.Sizeof(C.MSG{}))))
 }
 
 func (msg PMsg) pMsg() C.PMSG {
@@ -504,7 +503,7 @@ func (msg PMsg) pMsg() C.PMSG {
 }
 
 func (msg PMsg) Free() {
-    mem.Free(unsafe.Pointer(msg))
+    C.free(unsafe.Pointer(msg))
 }
 
 func (msg PMsg) Hwnd() native.Handle {

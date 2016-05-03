@@ -2,11 +2,12 @@ package rw
 
 import (
 	"fmt"
+	"unsafe"
 	"github.com/kevin-yuan/rw/event"
 	"github.com/kevin-yuan/rw/internal/native/windows/acceltable"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/util"
 )
@@ -215,12 +216,12 @@ type WindowHandleManager struct {
 	hwndManagerBase
 }
 
-var windowClsName ustrings.Unicode
+var windowClsName unsafe.Pointer
 
 func (m WindowHandleManager) Create(util.Bundle) native.Handle {
 	moduleHandle := window.GetModuleHandle(nil)
 	if windowClsName == nil {
-		windowClsName = ustrings.ToUnicode("rw.Window")
+		windowClsName = ustr.CStringUtf16("rw.Window")
 		window.RegisterClassEx(&window.WndClassEx{
 			WndProc:    window.DefWindowProcPtr(),
 			Instance:   moduleHandle,

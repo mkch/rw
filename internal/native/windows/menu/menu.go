@@ -7,7 +7,6 @@ import "C"
 import (
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
-	"github.com/kevin-yuan/rw/internal/mem"
 	"unsafe"
 )
 
@@ -152,7 +151,7 @@ const (
 
 
 func newMENUITEMINFO(itemInfo *MenuItemInfo) *C.MENUITEMINFO {
-	var info = (*C.MENUITEMINFO)(mem.AllocAutoFree(unsafe.Sizeof(C.MENUITEMINFO{})))
+	var info = (*C.MENUITEMINFO)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.MENUITEMINFO{}))[0]))
 	info.cbSize = C.UINT(unsafe.Sizeof(*info))
 	info.fMask = C.UINT(itemInfo.Mask);
 	info.fType = C.UINT(itemInfo.Type);

@@ -8,7 +8,7 @@ import (
 	"unsafe"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/stackescape"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 type Callback func(selector string, invocationArgs native.Handle)
@@ -28,11 +28,11 @@ func RWDynamicInvocation_initWithMethodsCallback(methods []string, callback Call
 	for _,str := range methods {
 		array = append(append(array, str...), 0)
 	}
-	return native.Handle(C.RWDynamicInvocation_initWithMethodsUserData((*C.char)(mem.CStringAutoFree(string(array))), C.UINTPTR(stackescape.Add(callback))))
+	return native.Handle(C.RWDynamicInvocation_initWithMethodsUserData((*C.char)(ustr.CStringUtf8(string(array))), C.UINTPTR(stackescape.Add(callback))))
 }
 
 func RWDynamicInvocation_addMethodwithSignature(handle native.Handle, method, signature string) {
-	C.RWDynamicInvocation_addMethodwithSignature(C.OBJC_PTR(handle), (*C.char)(mem.CStringAutoFree(method)), (*C.char)(mem.CStringAutoFree(signature)))
+	C.RWDynamicInvocation_addMethodwithSignature(C.OBJC_PTR(handle), (*C.char)(ustr.CStringUtf8(method)), (*C.char)(ustr.CStringUtf8(signature)))
 }
 
 func RWDynamicInvocation_delegate(handle native.Handle) native.Handle {

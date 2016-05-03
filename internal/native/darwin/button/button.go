@@ -8,7 +8,7 @@ import "C"
 import (
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/native/darwin/control"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 func NSButton_setButtonType(b native.Handle, buttonType uint) {
@@ -24,7 +24,7 @@ func NSButton_title(b native.Handle) string {
 }
 
 func NSButton_setTitle(b native.Handle, title string) {
-	C.NSButton_setTitle(C.OBJC_PTR(b), (*C.char)(mem.CStringAutoFree(title)))
+	C.NSButton_setTitle(C.OBJC_PTR(b), (*C.char)(ustr.CStringUtf8(title)))
 }
 
 func NewButton(x, y, w, h int) native.Handle {

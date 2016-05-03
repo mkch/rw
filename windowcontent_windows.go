@@ -1,23 +1,24 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
 	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/util"
+	"unsafe"
 )
 
 type winContentHandleManager struct {
 	hwndManagerBase
 }
 
-var winContentClsName ustrings.Unicode
+var winContentClsName unsafe.Pointer
 
 func (m winContentHandleManager) Create(util.Bundle) native.Handle {
 	moduleHandle := window.GetModuleHandle(nil)
 	if winContentClsName == nil {
-		winContentClsName = ustrings.ToUnicode("rw.WindowContent")
+		winContentClsName = ustr.CStringUtf16("rw.WindowContent")
 		window.RegisterClassEx(&window.WndClassEx{
 			WndProc:    window.DefWindowProcPtr(),
 			Instance:   moduleHandle,

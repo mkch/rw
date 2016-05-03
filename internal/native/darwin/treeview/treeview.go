@@ -6,12 +6,12 @@ import "C"
 import (
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/native/darwin/object"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 
 func NewRWTreeViewItem(title string) native.Handle {
-	return native.Handle(C.RWTreeViewItem_initWithTitle(C.RWTreeViewItem_alloc(), (*C.char)(mem.CStringAutoFree(title))))
+	return native.Handle(C.RWTreeViewItem_initWithTitle(C.RWTreeViewItem_alloc(), (*C.char)(ustr.CStringUtf8(title))))
 }
 
 func RWTreeView_title(item native.Handle) string {

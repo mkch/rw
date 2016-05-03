@@ -5,7 +5,7 @@ import (
 	"github.com/kevin-yuan/rw/event"
 	"github.com/kevin-yuan/rw/internal/native/windows/acceltable"
 	"github.com/kevin-yuan/rw/internal/native/windows/menu"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/util"
 	"strings"
@@ -100,7 +100,7 @@ func (item *menuItemBase) syncDisplayTitleToUI() {
 	if item.menu != nil {
 		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), false, &menu.MenuItemInfo{
 			Mask:     menu.MIIM_STRING,
-			TypeData: uintptr(ustrings.ToUnicodeAutoFree(item.displayTitle())),
+			TypeData: uintptr(ustr.CStringUtf16(item.displayTitle())),
 		})
 		item.menu.drawMenuBar()
 	}

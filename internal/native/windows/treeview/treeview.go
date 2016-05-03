@@ -6,10 +6,10 @@ import "C"
 import (
 	"unsafe"
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
 	"github.com/kevin-yuan/rw/internal/native/windows/window"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil/ustrings"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 const (
@@ -90,7 +90,7 @@ func TreeView_Expand(tv, item native.Handle, flag uint) {
 }
 
 func TreeView_SetItem(tv native.Handle, item *TvItemEx) {
-	p := (*C.TVITEMEX)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.TVITEMEX{}))))
+	p := (*C.TVITEMEX)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.TVITEMEX{}))[0]))
 	// Copy to c struct.
 	newTVITEMEX(p, item)
 	if C.SendMessage(C.HWND(C.PVOID(tv)), C.TVM_SETITEM, 0, C.LPARAM(uintptr(C.PVOID(p)))) == 0 {
@@ -109,7 +109,7 @@ func TreeView_GetNextItem(tv, item native.Handle, flag uint) native.Handle {
 }
 
 func TreeView_GetItem(tv native.Handle, item *TvItemEx)  {
-	p := (*C.TVITEMEX)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.TVITEMEX{}))))
+	p := (*C.TVITEMEX)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.TVITEMEX{}))[0]))
 	// Copy to c struct.
 	newTVITEMEX(p, item)
 	if C.SendMessage(C.HWND(C.PVOID(tv)), C.TVM_GETITEM, 0, C.LPARAM(uintptr(C.PVOID(p)))) == 0 {
@@ -138,7 +138,7 @@ type TvInsertStruct struct {
 }
 
 func newTVINSERTSTRUCT(st *TvInsertStruct) *C.TVINSERTSTRUCT {
-	var ret = (*C.TVINSERTSTRUCT)(mem.AllocAutoFree(uintptr(unsafe.Sizeof(C.TVINSERTSTRUCT{}))))
+	var ret = (*C.TVINSERTSTRUCT)(unsafe.Pointer(&make([]byte, unsafe.Sizeof(C.TVINSERTSTRUCT{}))[0]))
 	ret.hParent = C.HTREEITEM(C.PVOID(st.Parent))
 	ret.hInsertAfter = C.HTREEITEM(C.PVOID(st.InsertAfter))
 	// As Go doesn't have support for C's union type in the general case, C's union types are represented as a Go byte array with the same length.
@@ -162,11 +162,11 @@ type TvItemEx struct {
 }
 
 func (item *TvItemEx) TextString() string {
-	return ustrings.FromUnicode(unsafe.Pointer(item.Text))
+	return ustr.GoStringFromUtf16(unsafe.Pointer(item.Text))
 }
 
 func (item *TvItemEx) SetTextString (str string) {
-	item.Text = uintptr(ustrings.ToUnicodeAutoFree(str))
+	item.Text = uintptr(ustr.CStringUtf16(str))
 }
 
 // Count of characters.

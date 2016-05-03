@@ -5,10 +5,10 @@ package runtime
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 func RegisterSelector(name string) uintptr {
-	return uintptr(C.registerSelector((*C.char)(mem.CStringAutoFree(name))))
+	return uintptr(C.registerSelector((*C.char)(ustr.CStringUtf8(name))))
 }
 

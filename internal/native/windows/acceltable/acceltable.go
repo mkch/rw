@@ -7,7 +7,6 @@ import (
 	"github.com/kevin-yuan/rw/internal/native/windows/post"
 	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
 	"unsafe"
 	"fmt"
 	"bytes"
@@ -51,10 +50,6 @@ func (t *AccelTable) Destroy() {
 			nativeutil.PanicWithLastError()
 		}
 		t.accelTableHandle = nil
-	}
-	if cap(t.accelTableEntries) > 0 {
-		t.accelTableEntries = t.accelTableEntries[:cap(t.accelTableEntries)] // In case `&t.accelTableEntries[0]` out of index.
-		mem.Free(unsafe.Pointer(&t.accelTableEntries[0]))
 	}
 	t.accelTableEntries = nil
 }
@@ -141,10 +136,10 @@ func (t *AccelTable) rebuildTable() {
 		l := len(t.accelTableEntries)
 		if t.accelTableEntries == nil { // Not allocated
 			c = 16
-			t.accelTableEntries = (*[(1<<30)/C_ACCEL_SIZE]C.ACCEL)(mem.Alloc(uintptr(C_ACCEL_SIZE*c)))[:0:c]
+			t.accelTableEntries = make([]C.ACCEL, 0, c)
 		} else if c == l { // No more capacity
 			c *= 2
-			t.accelTableEntries = (*[(1<<30)/C_ACCEL_SIZE]C.ACCEL)(mem.Realloc(unsafe.Pointer(&t.accelTableEntries[0]), uintptr(C_ACCEL_SIZE*c)))[:l:c]
+			t.accelTableEntries = append(make([]C.ACCEL, 0, c), t.accelTableEntries...)
 		}
 		t.accelTableEntries = append(t.accelTableEntries, *accel)
 		changed = true

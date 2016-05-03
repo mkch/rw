@@ -6,7 +6,7 @@ import "C"
 
 import (
 	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 	"github.com/kevin-yuan/rw/internal/stackescape"
 	"github.com/kevin-yuan/rw/internal/native/darwin/event"
 )
@@ -24,7 +24,7 @@ func NSWindow_title(w native.Handle) string {
 }
 
 func NSWindow_setTitle(w native.Handle, title string) {
-	C.NSWindow_setTitle(C.OBJC_PTR(w), (*C.char)(mem.CStringAutoFree(title)))
+	C.NSWindow_setTitle(C.OBJC_PTR(w), (*C.char)(ustr.CStringUtf8(title)))
 }
 
 func NSWindow_contentView(w native.Handle) native.Handle {

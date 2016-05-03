@@ -2,7 +2,6 @@ package rw
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw/internal/mem"
 	"os"
 	"runtime"
 )
@@ -16,8 +15,6 @@ func Run(initializeCallback func()) {
 	// OS GUI call must be single threaded.
 	runtime.LockOSThread()
 	if !initialized {
-		// Use unsafePost for efficency.
-		mem.Init(unsafePost)
 		nativeInit()
 		initialized = true
 	}

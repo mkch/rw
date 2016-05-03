@@ -7,7 +7,7 @@ import "C"
 import (
 	"github.com/kevin-yuan/rw/native"
 	"github.com/kevin-yuan/rw/internal/native/darwin/object"
-	"github.com/kevin-yuan/rw/internal/mem"
+	"github.com/kevin-yuan/rw/util/ustr"
 )
 
 func NewMenu() native.Handle {
@@ -55,7 +55,7 @@ func NSMenu_title(menu native.Handle) string {
 }
 
 func NSMenu_setTitle(menu native.Handle, title string) {
-	C.NSMenu_setTitle(C.OBJC_PTR(menu), (*C.char)(mem.CStringAutoFree(title)))
+	C.NSMenu_setTitle(C.OBJC_PTR(menu), (*C.char)(ustr.CStringUtf8(title)))
 }
 
 func NSMenu_autoenablesItems(menu native.Handle) bool {
@@ -83,7 +83,7 @@ func NSMenuItem_title(item native.Handle) string {
 }
 
 func NSMenuItem_setTitle(item native.Handle, title string) {
-	C.NSMenuItem_setTitle(C.OBJC_PTR(item), (*C.char)(mem.CStringAutoFree(title)))
+	C.NSMenuItem_setTitle(C.OBJC_PTR(item), (*C.char)(ustr.CStringUtf8(title)))
 }
 
 func NSMenuItem_setSubmenu(item, menu native.Handle) {
@@ -151,7 +151,7 @@ func NSMenuItem_setKeyEquivalent(item native.Handle, key rune) {
 	if key != 0 {
 		strKey = string(key)
 	}
-	C.NSMenuItem_setKeyEquivalent(C.OBJC_PTR(item), (*C.char)(mem.CStringAutoFree(strKey)))
+	C.NSMenuItem_setKeyEquivalent(C.OBJC_PTR(item), (*C.char)(ustr.CStringUtf8(strKey)))
 }
 
 type NSKeyEquivalentModifierMask uint
