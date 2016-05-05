@@ -1,12 +1,12 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/event"
-	"github.com/kevin-yuan/rw/internal/native/windows/window"
-	"github.com/kevin-yuan/rw/internal/native/windows/window/winutil"
+	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/windows/window"
+	"github.com/mkch/rw/internal/native/windows/window/winutil"
 
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 )
 
 // ControlPlatformSpecific contains extra platform specific methods.

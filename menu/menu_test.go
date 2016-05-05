@@ -1,10 +1,10 @@
 package menu_test
 
 import (
-	"github.com/kevin-yuan/rw"
-	"github.com/kevin-yuan/rw/event"
-	"github.com/kevin-yuan/rw/menu"
-	"github.com/kevin-yuan/rw/window"
+	"github.com/mkch/rw"
+	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/menu"
+	"github.com/mkch/rw/window"
 	"sort"
 	"strconv"
 	"testing"

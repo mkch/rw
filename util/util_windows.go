@@ -4,7 +4,7 @@ import(
     "strings"
     "io"
 	"fmt"
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 )
 
 // Windows_ControlTitleWithMnemonic applys the mnemonic char to the title.

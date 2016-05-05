@@ -1,8 +1,8 @@
 package menu
 
 import (
-	"github.com/kevin-yuan/rw"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw"
+	"github.com/mkch/rw/util"
 )
 
 func AllocItem(separator bool) rw.MenuItem {

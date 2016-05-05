@@ -1,12 +1,12 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/darwin/app"
-	"github.com/kevin-yuan/rw/internal/native/darwin/menu"
-	"github.com/kevin-yuan/rw/internal/native/darwin/object"
-	"github.com/kevin-yuan/rw/internal/native/darwin/deallochook"
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/internal/native/darwin/app"
+	"github.com/mkch/rw/internal/native/darwin/menu"
+	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 )
 
 // OSX_SetMainMenu sets the main menu of this app. Available on Mac OS X only.

@@ -1,7 +1,7 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/windows/post"
+	"github.com/mkch/rw/internal/native/windows/post"
 )
 
 // Post posts a function to the GUI goroutine and runs it there.

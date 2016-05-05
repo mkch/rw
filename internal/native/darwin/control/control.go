@@ -5,8 +5,8 @@ package control
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util/ustr"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util/ustr"
 )
 
 func NSControl_initWithFrame(c native.Handle, x, y, w, h int) native.Handle {

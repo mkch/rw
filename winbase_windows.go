@@ -1,9 +1,9 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/windows/window"
-	"github.com/kevin-yuan/rw/util"
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/internal/native/windows/window"
+	"github.com/mkch/rw/util"
+	"github.com/mkch/rw/native"
 )
 
 func centerWindowToScreen(handle native.Handle) {

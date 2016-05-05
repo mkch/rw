@@ -1,7 +1,7 @@
 package panel
 
 import (
-	"github.com/kevin-yuan/rw"
+	"github.com/mkch/rw"
 )
 
 type HandleManager struct {

@@ -4,7 +4,7 @@ package deallochook
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 )
 
 type DeallocHookFunc func(native.Handle)

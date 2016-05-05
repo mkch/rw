@@ -2,7 +2,7 @@ package rw
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/util"
 )
 
 // In Darwin: The defaultObjectTable which contains all NSObject* wrappers.

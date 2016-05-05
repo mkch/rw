@@ -3,7 +3,7 @@ package icon_test
 import (
 	"os"
 	"testing"
-	"github.com/kevin-yuan/rw/util/icon"
+	"github.com/mkch/rw/util/icon"
 )
 
 func Test(t *testing.T) {

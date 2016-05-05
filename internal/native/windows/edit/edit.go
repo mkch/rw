@@ -4,7 +4,7 @@ package edit
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 	"unsafe"
 )
 

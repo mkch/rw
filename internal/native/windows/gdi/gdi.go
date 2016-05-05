@@ -5,7 +5,7 @@ package gdi
 import "C"
 
 import (
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
+    "github.com/mkch/rw/internal/native/windows/nativeutil"
 )
 
 var (

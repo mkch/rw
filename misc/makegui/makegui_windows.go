@@ -13,7 +13,7 @@ import (
 	"io"
 	"unsafe"
 	"unicode/utf16"
-	"github.com/kevin-yuan/rw/util/icon"
+	"github.com/mkch/rw/util/icon"
 )
 
 func main() {

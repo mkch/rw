@@ -5,7 +5,7 @@ import "C"
 
 import (
 	"unsafe"
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
+    "github.com/mkch/rw/internal/native/windows/nativeutil"
 )
 
 

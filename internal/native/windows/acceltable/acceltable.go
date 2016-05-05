@@ -4,9 +4,9 @@ package acceltable
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/windows/post"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/internal/native/windows/post"
+	"github.com/mkch/rw/internal/native/windows/nativeutil"
+	"github.com/mkch/rw/native"
 	"unsafe"
 	"fmt"
 	"bytes"

@@ -1,7 +1,7 @@
 package event_test
 
 import (
-	"github.com/kevin-yuan/rw/event"
+	"github.com/mkch/rw/event"
 	"testing"
 )
 

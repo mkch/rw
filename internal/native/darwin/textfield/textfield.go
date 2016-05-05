@@ -5,8 +5,8 @@ import "C"
 
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/darwin/control"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/internal/native/darwin/control"
 )
 
 func NewTextField(x, y, w, h int) native.Handle {

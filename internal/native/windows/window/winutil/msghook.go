@@ -5,8 +5,8 @@ package winutil
 import "C"
 
 import (
-    "github.com/kevin-yuan/rw/native"
-    "github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
+    "github.com/mkch/rw/native"
+    "github.com/mkch/rw/internal/native/windows/nativeutil"
 )
 
 func SetupMessageHook(ncDestroy func(handle native.Handle)) {

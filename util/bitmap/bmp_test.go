@@ -1,7 +1,7 @@
 package bitmap_test
 
 import (
-	"github.com/kevin-yuan/rw/util/bitmap"
+	"github.com/mkch/rw/util/bitmap"
 	"os"
 	"testing"
 )

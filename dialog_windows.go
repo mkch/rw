@@ -1,11 +1,11 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/windows/dialog"
-	"github.com/kevin-yuan/rw/internal/native/windows/window"
-	"github.com/kevin-yuan/rw/internal/stackescape"
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/internal/native/windows/dialog"
+	"github.com/mkch/rw/internal/native/windows/window"
+	"github.com/mkch/rw/internal/stackescape"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 )
 
 func (dlg *windowBase) CloseModal(result interface{}) {

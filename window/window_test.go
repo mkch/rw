@@ -2,9 +2,9 @@ package window_test
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw"
-	"github.com/kevin-yuan/rw/event"
-	"github.com/kevin-yuan/rw/window"
+	"github.com/mkch/rw"
+	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/window"
 	"image/color"
 	"testing"
 	"time"

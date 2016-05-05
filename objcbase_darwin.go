@@ -1,10 +1,10 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/util"
 
-	"github.com/kevin-yuan/rw/internal/native/darwin/object"
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/native"
 )
 
 // objcBase implements the common operations of NSObject

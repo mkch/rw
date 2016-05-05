@@ -4,7 +4,7 @@ package windowstyle
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/internal/windowstyle"
+	"github.com/mkch/rw/internal/windowstyle"
 )
 
 func WindowStyle(features *windowstyle.WindowStyleFeatures) uint {

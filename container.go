@@ -2,7 +2,7 @@ package rw
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw/event"
+	"github.com/mkch/rw/event"
 	"image/color"
 )
 

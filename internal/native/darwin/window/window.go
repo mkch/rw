@@ -5,10 +5,10 @@ package window
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util/ustr"
-	"github.com/kevin-yuan/rw/internal/stackescape"
-	"github.com/kevin-yuan/rw/internal/native/darwin/event"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util/ustr"
+	"github.com/mkch/rw/internal/stackescape"
+	"github.com/mkch/rw/internal/native/darwin/event"
 )
 
 func NSWindow_makeFirstResponder(w native.Handle, responder native.Handle) bool {

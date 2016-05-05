@@ -5,9 +5,9 @@ package menu
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/darwin/object"
-	"github.com/kevin-yuan/rw/util/ustr"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/util/ustr"
 )
 
 func NewMenu() native.Handle {

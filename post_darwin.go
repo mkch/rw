@@ -1,7 +1,7 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/darwin/post"
+	"github.com/mkch/rw/internal/native/darwin/post"
 )
 
 // Post posts a function to the GUI goroutine and runs it there.

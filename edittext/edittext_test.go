@@ -1,10 +1,10 @@
 package edittext_test
 
 import (
-	"github.com/kevin-yuan/rw"
-	"github.com/kevin-yuan/rw/window"
-	"github.com/kevin-yuan/rw/edittext"
-	"github.com/kevin-yuan/rw/event"
+	"github.com/mkch/rw"
+	"github.com/mkch/rw/window"
+	"github.com/mkch/rw/edittext"
+	"github.com/mkch/rw/event"
 	"testing"
 	"fmt"
 )

@@ -1,8 +1,8 @@
 package menu
 
 import (
-	"github.com/kevin-yuan/rw"
-	"github.com/kevin-yuan/rw/event"
+	"github.com/mkch/rw"
+	"github.com/mkch/rw/event"
 	"runtime"
 )
 

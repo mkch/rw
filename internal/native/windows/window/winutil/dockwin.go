@@ -2,10 +2,10 @@ package winutil
 
 import (
 	"unsafe"
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/windows/nativeutil"
-	"github.com/kevin-yuan/rw/util/ustr"
-	"github.com/kevin-yuan/rw/internal/native/windows/window"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/internal/native/windows/nativeutil"
+	"github.com/mkch/rw/util/ustr"
+	"github.com/mkch/rw/internal/native/windows/window"
 )
 
 //#include <windows.h>

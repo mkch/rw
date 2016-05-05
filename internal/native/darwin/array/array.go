@@ -4,7 +4,7 @@ package array
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 )
 
 // NSNotFound, index for the object "not found".

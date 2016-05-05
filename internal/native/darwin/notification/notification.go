@@ -5,7 +5,7 @@ import "C"
 
 
 import (
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 )
 
 func NSNotification_object(n native.Handle) native.Handle {

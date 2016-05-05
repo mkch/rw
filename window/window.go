@@ -1,7 +1,7 @@
 package window
 
 import (
-	"github.com/kevin-yuan/rw"
+	"github.com/mkch/rw"
 )
 
 var hm = &rw.WindowHandleManager{}

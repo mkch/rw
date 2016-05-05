@@ -5,7 +5,7 @@ package runtime
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/util/ustr"
+	"github.com/mkch/rw/util/ustr"
 )
 
 func RegisterSelector(name string) uintptr {

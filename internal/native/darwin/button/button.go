@@ -6,9 +6,9 @@ import "C"
 
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/darwin/control"
-	"github.com/kevin-yuan/rw/util/ustr"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/internal/native/darwin/control"
+	"github.com/mkch/rw/util/ustr"
 )
 
 func NSButton_setButtonType(b native.Handle, buttonType uint) {

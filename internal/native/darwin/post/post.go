@@ -6,7 +6,7 @@ package post
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/internal/stackescape"
+	"github.com/mkch/rw/internal/stackescape"
 )
 
 func Init() {

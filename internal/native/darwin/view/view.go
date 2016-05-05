@@ -4,8 +4,8 @@ package view
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	nativecolor "github.com/kevin-yuan/rw/internal/native/darwin/color"
+	"github.com/mkch/rw/native"
+	nativecolor "github.com/mkch/rw/internal/native/darwin/color"
 	"image/color"
 )
 

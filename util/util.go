@@ -1,8 +1,8 @@
 package util
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/event"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/event"
 )
 
 type Bundle map[string] interface{}

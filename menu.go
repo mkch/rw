@@ -2,8 +2,8 @@ package rw
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw/event"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/util"
 )
 
 // Menu is application or window menu.

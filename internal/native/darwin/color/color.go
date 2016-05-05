@@ -5,7 +5,7 @@ import "C"
 
 import (
 	"image/color"
-	"github.com/kevin-yuan/rw/native"
+	"github.com/mkch/rw/native"
 )
 
 func NSColor_colorWithRGB(c color.Color) native.Handle {

@@ -4,9 +4,9 @@ package textview
 import "C"
 
 import (
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/internal/native/darwin/array"
-	"github.com/kevin-yuan/rw/internal/native/darwin/value"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/internal/native/darwin/array"
+	"github.com/mkch/rw/internal/native/darwin/value"
 )
 
 func NSTextView_setSelectedRange(v native.Handle, start, length uint) {

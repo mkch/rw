@@ -2,12 +2,12 @@ package rw
 
 import (
 	"bytes"
-	"github.com/kevin-yuan/rw/event"
-	"github.com/kevin-yuan/rw/internal/native/windows/acceltable"
-	"github.com/kevin-yuan/rw/internal/native/windows/menu"
-	"github.com/kevin-yuan/rw/util/ustr"
-	"github.com/kevin-yuan/rw/native"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/windows/acceltable"
+	"github.com/mkch/rw/internal/native/windows/menu"
+	"github.com/mkch/rw/util/ustr"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 	"strings"
 	"unicode"
 )

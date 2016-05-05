@@ -1,7 +1,7 @@
 package menu
 
 import (
-	"github.com/kevin-yuan/rw"
+	"github.com/mkch/rw"
 )
 
 var menuHM = &rw.MenuHandleManager{}

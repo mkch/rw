@@ -2,7 +2,7 @@ package rw
 
 import (
 	"fmt"
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/util"
 )
 
 // Control is the base interface for all window widgets that can be added into a Container.

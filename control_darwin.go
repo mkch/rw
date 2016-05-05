@@ -1,10 +1,10 @@
 package rw
 
 import (
-	"github.com/kevin-yuan/rw/internal/native/darwin/view"
-	"github.com/kevin-yuan/rw/internal/native/darwin/window"
+	"github.com/mkch/rw/internal/native/darwin/view"
+	"github.com/mkch/rw/internal/native/darwin/window"
 
-	"github.com/kevin-yuan/rw/util"
+	"github.com/mkch/rw/util"
 )
 
 // ControlPlatformSpecific contains extra platform specific methods.
