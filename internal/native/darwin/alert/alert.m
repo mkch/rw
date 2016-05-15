@@ -5,6 +5,7 @@
 const NSUInteger VarNSWarningAlertStyle = NSWarningAlertStyle;
 const NSUInteger VarNSInformationalAlertStyle = NSInformationalAlertStyle;
 const NSUInteger VarNSCriticalAlertStyle = NSCriticalAlertStyle;
+const NSInteger VarNSAlertFirstButtonReturn = NSAlertFirstButtonReturn;
 
 OBJC_PTR NSAlert_alloc() {
 	return [NSAlert alloc];

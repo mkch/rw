@@ -2,7 +2,6 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
-	"github.com/mkch/rw/internal/native/darwin/alert"
 	"github.com/mkch/rw/internal/native/darwin/app"
 	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
@@ -283,12 +282,4 @@ func (m *WindowHandleManager) Create(util.Bundle) native.Handle {
 	w := window.NewRWWindow(0, 0, 300, 200, style)
 	window.NSWindow_center(w)
 	return deallochook.Apply(w)
-}
-
-// Alert shows a modal dialog with alert message.
-func Alert(title, message string) {
-	a := object.NSObject_autorelease(object.NSObject_init(alert.NSAlert_alloc()))
-	alert.NSAlert_setMessageText(a, title)
-	alert.NSAlert_setInformativeText(a, message)
-	alert.NSAlert_runModal(a)
 }

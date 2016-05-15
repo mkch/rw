@@ -6,6 +6,8 @@ extern const NSUInteger VarNSWarningAlertStyle;
 extern const NSUInteger VarNSInformationalAlertStyle;
 extern const NSUInteger VarNSCriticalAlertStyle;
 
+extern const NSInteger VarNSAlertFirstButtonReturn;
+
 OBJC_PTR NSAlert_alloc();
 OBJC_PTR NSAlert_alertWithError(OBJC_PTR error);
 void NSAlert_layout(OBJC_PTR ptr);

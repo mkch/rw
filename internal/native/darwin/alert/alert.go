@@ -17,6 +17,10 @@ var (
 	NSCriticalAlertStyle      = NSAlertStyle(C.VarNSCriticalAlertStyle)
 )
 
+var (
+	NSAlertFirstButtonReturn = int(C.VarNSAlertFirstButtonReturn)
+)
+
 func NSAlert_alloc() native.Handle {
 	return native.Handle(C.NSAlert_alloc())
 }
