@@ -2,15 +2,14 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/darwin/alert"
 	"github.com/mkch/rw/internal/native/darwin/app"
-	"github.com/mkch/rw/internal/native/darwin/date"
 	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
-	nativeEvent "github.com/mkch/rw/internal/native/darwin/event"
 	"github.com/mkch/rw/internal/native/darwin/notification"
 	"github.com/mkch/rw/internal/native/darwin/object"
-	"github.com/mkch/rw/internal/native/darwin/runloop"
 	"github.com/mkch/rw/internal/native/darwin/screen"
+	nativeUtil "github.com/mkch/rw/internal/native/darwin/util"
 	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/internal/native/darwin/window"
 	"github.com/mkch/rw/internal/native/darwin/windowstyle"
@@ -183,40 +182,12 @@ func (w *windowBase) ShowModal(parent Window) interface{} {
 	if parent == nil { // Application modal.
 		app.NSApplication_runModalForWindow(app.NSApp(), handle)
 	} else { // Window modal. Use sheet.
-		var completed = false
+		var rsc nativeUtil.RunloopShortCircuiter
 		window.NSWindow_beginSheet_completionHandler(parent.Wrapper().Handle(), handle,
 			func(returnCode int) {
-				// Set flag.
-				completed = true
-				// Send an fake(empty) event to wake up the event loop below.
-				//
-				// Do not save this fake event in a variable and test whether the next event equals this event in the loop below.
-				// NSEvent conforms to NSCopying, may be copied. Don't make pointer comparison.
-				app.NSApplication_postEvent_atStart(app.NSApp(), nativeEvent.NSEvent_otherEventWithType_location_modifierFlags_timestamp_windowNumber_context_subtype_data1_data2(
-					nativeEvent.NSApplicationDefined, // type
-					0, 0, // location
-					0,    // flags
-					0,    // time
-					0,    // windowNumber
-					0,    // context
-					0,    //subtype
-					0, 0, // data1 & data2
-				), false)
+				rsc.Stop()
 			})
-
-		// Run a short circuit event loop here to wait for sheet completion. Sheet completion is asynchronous.
-		for !completed {
-			nextEvent := app.NSApplication_nextEventMatchingMask_untilDate_inMode_dequeue(app.NSApp(),
-				nativeEvent.NSAnyEventMask,   //mask
-				date.NSDate_distantFuture(),  // expiration.
-				runloop.NSDefaultRunLoopMode, // mode.
-				true, // flag
-			)
-			if nextEvent == 0 {
-				break
-			}
-			app.NSApplication_sendEvent(app.NSApp(), nextEvent)
-		}
+		rsc.Run()
 		window.NSWindow_close(handle)
 	}
 	return w.modalResult
@@ -312,4 +283,11 @@ func (m *WindowHandleManager) Create(util.Bundle) native.Handle {
 	w := window.NewRWWindow(0, 0, 300, 200, style)
 	window.NSWindow_center(w)
 	return deallochook.Apply(w)
+}
+
+func Alert(title, message string) {
+	a := object.NSObject_autorelease(object.NSObject_init(alert.NSAlert_alloc()))
+	alert.NSAlert_setMessageText(a, title)
+	alert.NSAlert_setInformativeText(a, message)
+	alert.NSAlert_runModal(a)
 }
