@@ -285,6 +285,7 @@ func (m *WindowHandleManager) Create(util.Bundle) native.Handle {
 	return deallochook.Apply(w)
 }
 
+// Alert shows a modal dialog with alert message.
 func Alert(title, message string) {
 	a := object.NSObject_autorelease(object.NSObject_init(alert.NSAlert_alloc()))
 	alert.NSAlert_setMessageText(a, title)
