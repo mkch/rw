@@ -3,7 +3,6 @@ package notification
 //#include "notification.h"
 import "C"
 
-
 import (
 	"github.com/mkch/rw/native"
 )

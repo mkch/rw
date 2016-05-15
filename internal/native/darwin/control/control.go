@@ -42,7 +42,7 @@ func NSControl_isEnabled(c native.Handle) bool {
 	return bool(C.NSControl_isEnabled(C.OBJC_PTR(c)))
 }
 
-func  Control_setEnabled(c native.Handle, enabled bool) {
+func Control_setEnabled(c native.Handle, enabled bool) {
 	var value C.bool
 	if enabled {
 		value = C.bool(true)

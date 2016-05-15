@@ -17,21 +17,20 @@ func (evt *SimpleEvent) Sender() interface{} {
 	return evt.TheSender
 }
 
-
 // Hub is a event hub to send and receive events.
 // Hub can be created as part of other structures.
 type Hub struct {
 	// DefaultReturnValue is the listener return value if no listener set.
 	DefaultReturnValue bool
-	hookChain HookChain
-	listener Handler
+	hookChain          HookChain
+	listener           Handler
 }
 
 func (hub *Hub) defaultHookHandler(evt Event) bool {
-		if hub.listener != nil {
-			return hub.listener(evt)
-		}
-		return hub.DefaultReturnValue
+	if hub.listener != nil {
+		return hub.listener(evt)
+	}
+	return hub.DefaultReturnValue
 }
 
 // HasHandler returns true if an event sent to this hub will be processed by at least one Handler or Callback.
@@ -46,13 +45,13 @@ func (hub *Hub) HasHandler() bool {
 // 2. Listener, if any, is called if the last called hook callback in step 1 calls nextHook or if no hook callbacks added.
 func (hub *Hub) Send(event Event) bool {
 	if hub.hookChain.item == nil {
-		hub.hookChain.item = &hookItem {callback: hub.defaultHookHandler}
+		hub.hookChain.item = &hookItem{callback: hub.defaultHookHandler}
 	}
 	return hub.hookChain.Call(event)
 }
 
 // SetHandler sets a Handler to handle any events sent to this hub.
-func (hub *Hub) SetHandler(handler Handler){
+func (hub *Hub) SetHandler(handler Handler) {
 	hub.listener = handler
 }
 
@@ -62,17 +61,17 @@ func (hub *Hub) SetHandler(handler Handler){
 // 2. func(), equivalent to hub.SetHandler(func(Event)bool{listener();return true});
 // 3. func(Event), equivalent to hub.SetHandler(func(evt Event)bool{listener(evt);return true});
 // 4. func() bool, equivalent to hub.SetHandler(func(Event)bool{return listener()}).
-func (hub *Hub) SetListener(listener interface{}){
+func (hub *Hub) SetListener(listener interface{}) {
 	if handler, ok := listener.(Handler); ok {
 		hub.SetHandler(handler)
 	} else if fl, ok := listener.(func(event Event) bool); ok {
 		hub.SetHandler(fl)
 	} else if f, ok := listener.(func()); ok {
-		hub.SetHandler(func(Event)bool {f(); return true})
+		hub.SetHandler(func(Event) bool { f(); return true })
 	} else if fe, ok := listener.(func(Event)); ok {
-		hub.SetHandler(func(evt Event)bool{fe(evt); return true})
-	} else if fb, ok := listener.(func()bool); ok {
-		hub.SetHandler(func(Event)bool{return fb()})
+		hub.SetHandler(func(evt Event) bool { fe(evt); return true })
+	} else if fb, ok := listener.(func() bool); ok {
+		hub.SetHandler(func(Event) bool { return fb() })
 	} else {
 		panic("Invalid listener. Must be one of: event.Handler, func(), func(event.Event), func()bool")
 	}
@@ -82,7 +81,7 @@ func (hub *Hub) SetListener(listener interface{}){
 // The returned HookItem value can be used to Unhook(). See HookChain.AddHook.
 func (hub *Hub) AddHook(callback Callback) HookItem {
 	if hub.hookChain.item == nil {
-		hub.hookChain.item = &hookItem {callback: hub.defaultHookHandler}
+		hub.hookChain.item = &hookItem{callback: hub.defaultHookHandler}
 	}
 	return hub.hookChain.AddHook(callback)
 }

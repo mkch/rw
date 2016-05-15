@@ -4,8 +4,8 @@ package color
 import "C"
 
 import (
-	"image/color"
 	"github.com/mkch/rw/native"
+	"image/color"
 )
 
 func NSColor_colorWithRGB(c color.Color) native.Handle {
@@ -17,6 +17,6 @@ func NSColor_colorWithRGB(c color.Color) native.Handle {
 func NSColor_getRGBA(c native.Handle) color.Color {
 	var fr, fg, fb, fa C.CGFloat
 	C.NSColor_getRGBA(C.OBJC_PTR(c), &fr, &fg, &fb, &fa)
-	r, g, b, a := uint8(0xFF*fr), uint8(0xFF*fg), uint8(0xFF*fb), uint8(0xFF*fa);
+	r, g, b, a := uint8(0xFF*fr), uint8(0xFF*fg), uint8(0xFF*fb), uint8(0xFF*fa)
 	return color.RGBA{r, g, b, a}
 }

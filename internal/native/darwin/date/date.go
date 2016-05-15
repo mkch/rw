@@ -10,5 +10,3 @@ import (
 func NSDate_distantFuture() native.Handle {
 	return native.Handle(C.NSDate_distantFuture())
 }
-
-

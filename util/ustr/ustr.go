@@ -1,8 +1,8 @@
 package ustr
 
 import (
-	"unsafe"
 	"unicode/utf16"
+	"unsafe"
 )
 
 // CStringUtf8 converts a go string to a C string(0 terminated []C.char)
@@ -28,7 +28,7 @@ func CStringUtf16(str string) unsafe.Pointer {
 // BUG(?): Hard coded 0x0FFFFFFF.
 func GoStringFromUtf16(str unsafe.Pointer) string {
 	var count uint
-	for p:=(*uint16)(str); *p!=0; p=(*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(p))+unsafe.Sizeof(uint16(0)))) {
+	for p := (*uint16)(str); *p != 0; p = (*uint16)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(uint16(0)))) {
 		count++
 	}
 	return string(utf16.Decode((*[0x0FFFFFFF]uint16)(str)[:count]))

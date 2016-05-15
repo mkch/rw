@@ -3,10 +3,9 @@ package textfield
 //#include "textfield.h"
 import "C"
 
-
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/control"
+	"github.com/mkch/rw/native"
 )
 
 func NewTextField(x, y, w, h int) native.Handle {
@@ -44,7 +43,6 @@ func NSTextField_backgroundColor(edt native.Handle) native.Handle {
 func NSTextField_setBackgroundColor(edt, color native.Handle) {
 	C.NSTextField_setBackgroundColor(C.OBJC_PTR(edt), C.OBJC_PTR(color))
 }
-
 
 /////////////////////////////////////
 

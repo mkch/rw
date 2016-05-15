@@ -2,9 +2,9 @@
 package stackescape
 
 import (
-	"sync"
 	"fmt"
 	"os"
+	"sync"
 )
 
 type Id uintptr
@@ -16,14 +16,14 @@ const maxId = ^Id(0)
 // Table is a map of Id to interface{}.
 // Table is not concurrency safe.
 type Table struct {
-	l list
-	nextId Id
+	l          list
+	nextId     Id
 	idRewinded bool
 }
 
 func NewTable() *Table {
-	return &Table {
-		l: make(list),
+	return &Table{
+		l:      make(list),
 		nextId: 1,
 	}
 }
@@ -88,7 +88,7 @@ func (tab *SafeTable) Remove(id Id) {
 }
 
 func NewSafeTable() *SafeTable {
-	return &SafeTable {
+	return &SafeTable{
 		Table: *NewTable(),
 	}
 }
@@ -109,4 +109,3 @@ func Get(id Id) interface{} {
 func Remove(id Id) {
 	defaultTable.Remove(id)
 }
-

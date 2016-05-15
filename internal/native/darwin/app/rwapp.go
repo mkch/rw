@@ -5,15 +5,15 @@ package app
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/event"
+	"github.com/mkch/rw/native"
 )
 
 // disabledWindows contains all "disabled" windows.
 // Cocoa does not provided a way to disable a window. The trick we use
 // is to put all windows that should be disabled in a map and do not send
 // input events to them. See also goAppSendEvent below.
-var disabledWindows = make(map[native.Handle] bool)
+var disabledWindows = make(map[native.Handle]bool)
 
 // EnableWindow enables or disables a window.
 // Cocoa does not provided a way to disable a window. See disabledWindows above
@@ -32,7 +32,6 @@ func EnableWindow(w native.Handle, enable bool) {
 func WindowEnabled(w native.Handle) bool {
 	return disabledWindows[w]
 }
-
 
 //export goAppSendEvent
 func goAppSendEvent(theApp, evt C.OBJC_PTR) {

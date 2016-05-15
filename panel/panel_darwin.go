@@ -1,10 +1,10 @@
 package panel
 
 import (
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/internal/native/darwin/view"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
 )
 
 func (m *HandleManager) Create(util.Bundle) native.Handle {

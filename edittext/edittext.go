@@ -1,9 +1,9 @@
 package edittext
 
 import (
+	"fmt"
 	"github.com/mkch/rw"
 	"github.com/mkch/rw/event"
-	"fmt"
 )
 
 // HandleManager is the handle manager of EditText.

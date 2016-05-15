@@ -4,11 +4,10 @@ package treeview
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util/ustr"
 )
-
 
 func NewRWTreeViewItem(title string) native.Handle {
 	return native.Handle(C.RWTreeViewItem_initWithTitle(C.RWTreeViewItem_alloc(), (*C.char)(ustr.CStringUtf8(title))))
@@ -23,7 +22,7 @@ func RWTreeView_parent(item native.Handle) native.Handle {
 }
 
 func RWTreeViewItem_insertChild_atIndex(item native.Handle, child native.Handle, index uint) {
-	C.RWTreeViewItem_insertChild_atIndex(C.OBJC_PTR(item), C.OBJC_PTR(child), C.ulong(index));
+	C.RWTreeViewItem_insertChild_atIndex(C.OBJC_PTR(item), C.OBJC_PTR(child), C.ulong(index))
 }
 
 func RWTreeViewItem_removeChildAtIndex(item native.Handle, index uint) {
@@ -87,4 +86,3 @@ func RWTreeView_setEditable(v native.Handle, editable bool) {
 func RWTreeView_sizeColumnToFit(v native.Handle) {
 	C.RWTreeView_sizeColumnToFit(C.OBJC_PTR(v))
 }
-

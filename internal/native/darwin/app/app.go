@@ -4,8 +4,8 @@ package app
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/event"
+	"github.com/mkch/rw/native"
 )
 
 func NSApp() native.Handle {
@@ -19,7 +19,6 @@ func NSApplication_stop(app, sender native.Handle) {
 func NSApplication_terminate(app, sender native.Handle) {
 	C.NSApplication_terminate(C.OBJC_PTR(app), C.OBJC_PTR(sender))
 }
-
 
 func NSApplication_setMainMenu(app, menu native.Handle) {
 	C.NSApplication_setMainMenu(C.OBJC_PTR(app), C.OBJC_PTR(menu))
@@ -42,8 +41,8 @@ func NSApplication_stopModalWithCode(app native.Handle, code uintptr) {
 }
 
 var (
-	ModalResponseStop = uintptr(C.NSApplication_NSModalResponseStop)
-	ModalResponseAbort = uintptr(C.NSApplication_NSModalResponseAbort)
+	ModalResponseStop     = uintptr(C.NSApplication_NSModalResponseStop)
+	ModalResponseAbort    = uintptr(C.NSApplication_NSModalResponseAbort)
 	ModalResponseContinue = uintptr(C.NSApplication_NSModalResponseContinue)
 )
 
@@ -58,8 +57,8 @@ func NSApplication_run(app native.Handle) {
 type NSApplicationActivationPolicy int
 
 var (
-	NSApplicationActivationPolicyRegular = NSApplicationActivationPolicy(C.VarNSApplicationActivationPolicyRegular)
-	NSApplicationActivationPolicyAccessory = NSApplicationActivationPolicy(C.VarNSApplicationActivationPolicyAccessory)
+	NSApplicationActivationPolicyRegular    = NSApplicationActivationPolicy(C.VarNSApplicationActivationPolicyRegular)
+	NSApplicationActivationPolicyAccessory  = NSApplicationActivationPolicy(C.VarNSApplicationActivationPolicyAccessory)
 	NSApplicationActivationPolicyProhibited = NSApplicationActivationPolicy(C.VarNSApplicationActivationPolicyProhibited)
 )
 

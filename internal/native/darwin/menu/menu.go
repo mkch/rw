@@ -5,8 +5,8 @@ package menu
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util/ustr"
 )
 
@@ -68,11 +68,9 @@ func NSMenu_setAutoenablesItems(menu native.Handle, v bool) {
 
 //////////////////////////////////////////////
 
-
 func NewMenuItem() native.Handle {
 	return native.Handle(C.NSMenuItem_initWithTitleItemNameAactionKeyEquivalent(C.NSMenuItem_alloc(), nil, 0, nil))
 }
-
 
 func NewSeparatorMenuItem() native.Handle {
 	return object.NSObject_retain(native.Handle(C.NSMenuItem_separatorItem()))
@@ -119,9 +117,10 @@ func NSMenuItem_isSeparatorItem(item native.Handle) bool {
 }
 
 type NSMenuItemState int
-var(
-	NSOffState = NSMenuItemState(C.NSMenuItem_NSOffState)
-	NSOnState = NSMenuItemState(C.NSMenuItem_NSOnState)
+
+var (
+	NSOffState   = NSMenuItemState(C.NSMenuItem_NSOffState)
+	NSOnState    = NSMenuItemState(C.NSMenuItem_NSOnState)
 	NSMixedState = NSMenuItemState(C.NSMenuItem_NSMixedState)
 )
 
@@ -155,11 +154,12 @@ func NSMenuItem_setKeyEquivalent(item native.Handle, key rune) {
 }
 
 type NSKeyEquivalentModifierMask uint
+
 var (
-	NSShiftKeyMask = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSShiftKeyMask)
+	NSShiftKeyMask     = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSShiftKeyMask)
 	NSAlternateKeyMask = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSAlternateKeyMask)
-	NSCommandKeyMask = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSCommandKeyMask)
-	NSControlKeyMask = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSControlKeyMask)
+	NSCommandKeyMask   = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSCommandKeyMask)
+	NSControlKeyMask   = NSKeyEquivalentModifierMask(C.NSKeyEquivalentModifierMask_NSControlKeyMask)
 )
 
 func NSMenuItem_keyEquivalentModifierMask(item native.Handle) NSKeyEquivalentModifierMask {
@@ -169,4 +169,3 @@ func NSMenuItem_keyEquivalentModifierMask(item native.Handle) NSKeyEquivalentMod
 func NSMenuItem_setKeyEquivalentModifierMask(item native.Handle, k NSKeyEquivalentModifierMask) {
 	C.NSMenuItem_setKeyEquivalentModifierMask(C.OBJC_PTR(item), C.uint(k))
 }
-

@@ -1,10 +1,10 @@
 package util
 
 import (
-	"io"
 	"fmt"
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/native"
+	"io"
 )
 
 func printHandle(w io.Writer, handle native.Handle) {

@@ -4,8 +4,8 @@ package view
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	nativecolor "github.com/mkch/rw/internal/native/darwin/color"
+	"github.com/mkch/rw/native"
 	"image/color"
 )
 
@@ -47,7 +47,7 @@ func NSView_window(v native.Handle) native.Handle {
 	return native.Handle(C.NSView_window(C.OBJC_PTR(v)))
 }
 
-func NSView_frame(v native.Handle)(x, y, width, height int) {
+func NSView_frame(v native.Handle) (x, y, width, height int) {
 	rect := C.NSView_frame(C.OBJC_PTR(v))
 	return int(rect.origin.x), int(rect.origin.y), int(rect.size.width), int(rect.size.height)
 }
@@ -61,7 +61,7 @@ func NSView_setFrameOrigin(v native.Handle, x, y int) {
 }
 
 func NSView_isHidden(v native.Handle) bool {
-	return C.NSView_isHidden(C.OBJC_PTR(v)) != false;
+	return C.NSView_isHidden(C.OBJC_PTR(v)) != false
 }
 
 func NSView_setHidden(v native.Handle, hidden bool) {
@@ -103,5 +103,3 @@ func NSView_setNextKeyView(v, k native.Handle) {
 func NSView_previousKeyView(v native.Handle) native.Handle {
 	return native.Handle(C.NSView_previousKeyView(C.OBJC_PTR(v)))
 }
-
-

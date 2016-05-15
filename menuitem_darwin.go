@@ -2,15 +2,15 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
 	"github.com/mkch/rw/internal/native/darwin/menu"
 	"github.com/mkch/rw/internal/native/darwin/object"
 	"github.com/mkch/rw/internal/native/darwin/runtime"
 	"github.com/mkch/rw/native"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/util"
 	"unicode"
 	"unicode/utf8"
-	"github.com/mkch/rw/util"
 )
 
 const DefaultModifierKey = CommandKey

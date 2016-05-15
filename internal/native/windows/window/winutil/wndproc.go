@@ -8,7 +8,7 @@ import (
 //#include "wndproc.h"
 import "C"
 
-type WndProc func (hwnd native.Handle, msg uint, wParam, lParam uintptr) uintptr
+type WndProc func(hwnd native.Handle, msg uint, wParam, lParam uintptr) uintptr
 
 var wndProc WndProc
 

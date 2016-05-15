@@ -2,13 +2,13 @@ package edittext
 
 import (
 	"github.com/mkch/rw"
-	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/native"
-	"github.com/mkch/rw/internal/native/windows/window"
-	"github.com/mkch/rw/internal/native/windows/edit"
-	"github.com/mkch/rw/internal/native/windows/window/winutil"
-	"github.com/mkch/rw/internal/native/windows/commcontrol"
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/windows/commcontrol"
+	"github.com/mkch/rw/internal/native/windows/edit"
+	"github.com/mkch/rw/internal/native/windows/window"
+	"github.com/mkch/rw/internal/native/windows/window/winutil"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 )
 
 func (m *HandleManager) Create(b util.Bundle) native.Handle {

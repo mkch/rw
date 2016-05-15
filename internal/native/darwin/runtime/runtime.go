@@ -11,4 +11,3 @@ import (
 func RegisterSelector(name string) uintptr {
 	return uintptr(C.registerSelector((*C.char)(ustr.CStringUtf8(name))))
 }
-

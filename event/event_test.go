@@ -51,21 +51,21 @@ func testHookUnhook(hook *event.HookChain, t *testing.T) {
 	var expectedNextHookRet = true
 	var calledCallback1 bool = false
 	item1 := hook.AddHook(func(event event.Event, nextHook event.Handler) bool {
-			calledCallback1 = true
-			if event != eventSent {
-				t.Errorf("Wrong event in hook callback. Want %v, got %v", eventSent, event)
-			}
-			if s := event.Sender(); s != sender {
-				t.Errorf("Wrong sender of Event in hook callback. Want %v, got %v", sender, s)
-			}
-			if v := event.(*simpleEvent).Value(); v != expectedEventValueInCallback1 {
-				t.Errorf("Wrong value of simpleEvent in hook callback. Want %v, got %v", expectedEventValueInCallback1, v)
-			}
-			if ret := nextHook(event); ret != false {
-				t.Errorf("Wrong return value of nextHook. Want %v, got %v", false, ret)
-			}
-			return expectedNextHookRet
-		})
+		calledCallback1 = true
+		if event != eventSent {
+			t.Errorf("Wrong event in hook callback. Want %v, got %v", eventSent, event)
+		}
+		if s := event.Sender(); s != sender {
+			t.Errorf("Wrong sender of Event in hook callback. Want %v, got %v", sender, s)
+		}
+		if v := event.(*simpleEvent).Value(); v != expectedEventValueInCallback1 {
+			t.Errorf("Wrong value of simpleEvent in hook callback. Want %v, got %v", expectedEventValueInCallback1, v)
+		}
+		if ret := nextHook(event); ret != false {
+			t.Errorf("Wrong return value of nextHook. Want %v, got %v", false, ret)
+		}
+		return expectedNextHookRet
+	})
 	if !hook.HasCallback() {
 		t.Errorf("Non-empty Hook does not have callbacks")
 	}
@@ -83,25 +83,25 @@ func testHookUnhook(hook *event.HookChain, t *testing.T) {
 	var expectedEventValueInCallback2 = eventValue
 	calledCallback1 = false
 	item2 := hook.AddHook(func(event event.Event, nextHook event.Handler) bool {
-			if calledCallback1 {
-				t.Errorf("Wrong order of hook callback.")
-			}
-			calledCallback2 = true
-			if event != eventSent {
-				t.Errorf("Wrong event in hook callback. Want %v, got %v", eventSent, event)
-			}
-			if s := event.Sender(); s != sender {
-				t.Errorf("Wrong sender of Event in hook callback. Want %v, got %v", sender, s)
-			}
-			if v := event.(*simpleEvent).Value(); v != expectedEventValueInCallback2 {
-				t.Errorf("Wrong value of simpleEvent in hook callback. Want %v, got %v", expectedEventValueInCallback2, v)
-			}
-			event.(*simpleEvent).value = expectedEventValueInCallback1
-			if ret := nextHook(event); ret != expectedNextHookRet {
-				t.Errorf("Wrong return value of nextHook. Want %v, got %v", expectedNextHookRet, ret)
-			}
-			return false
-		})
+		if calledCallback1 {
+			t.Errorf("Wrong order of hook callback.")
+		}
+		calledCallback2 = true
+		if event != eventSent {
+			t.Errorf("Wrong event in hook callback. Want %v, got %v", eventSent, event)
+		}
+		if s := event.Sender(); s != sender {
+			t.Errorf("Wrong sender of Event in hook callback. Want %v, got %v", sender, s)
+		}
+		if v := event.(*simpleEvent).Value(); v != expectedEventValueInCallback2 {
+			t.Errorf("Wrong value of simpleEvent in hook callback. Want %v, got %v", expectedEventValueInCallback2, v)
+		}
+		event.(*simpleEvent).value = expectedEventValueInCallback1
+		if ret := nextHook(event); ret != expectedNextHookRet {
+			t.Errorf("Wrong return value of nextHook. Want %v, got %v", expectedNextHookRet, ret)
+		}
+		return false
+	})
 	if !hook.HasCallback() {
 		t.Errorf("Non-empty Hook does not have callbacks")
 	}
@@ -116,7 +116,6 @@ func testHookUnhook(hook *event.HookChain, t *testing.T) {
 	if !calledCallback2 {
 		t.Errorf("Hook callback2 is not called")
 	}
-
 
 	hook.RemoveHook(item2)
 	if !hook.HasCallback() {
@@ -191,23 +190,23 @@ func TestSimpleEventHandling(t *testing.T) {
 		t.Error("HasHandler() on a non-empty hub returns false")
 	}
 
-	hook1 := hub.AddHook(func(event event.Event, next event.Handler) bool{
-			v := (event.(*simpleEvent)).Value()
-			if v != 2 {
-				t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 2)
-			}
-			(event.(*simpleEvent)).value++
-			return next(event)
-		})
+	hook1 := hub.AddHook(func(event event.Event, next event.Handler) bool {
+		v := (event.(*simpleEvent)).Value()
+		if v != 2 {
+			t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 2)
+		}
+		(event.(*simpleEvent)).value++
+		return next(event)
+	})
 
 	hook2 := hub.AddHook(func(event event.Event, next event.Handler) bool {
-			v := (event.(*simpleEvent)).Value()
-			if v != 1 {
-				t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
-			}
-			(event.(*simpleEvent)).value = 2
-			return next(event)
-		})
+		v := (event.(*simpleEvent)).Value()
+		if v != 1 {
+			t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
+		}
+		(event.(*simpleEvent)).value = 2
+		return next(event)
+	})
 
 	ret := hub.Send(newSimpleEvent(sender, 1))
 	if ret != false {
@@ -216,7 +215,7 @@ func TestSimpleEventHandling(t *testing.T) {
 	hub.RemoveHook(hook2)
 	hub.RemoveHook(hook1)
 	hub.SetHandler(nil)
-	
+
 	if hub.HasHandler() {
 		t.Error("Empty hub has handler")
 	}
@@ -229,19 +228,19 @@ func TestEventHandlingNotCallingNext(t *testing.T) {
 		return false
 	})
 
-	hub.AddHook(func(event event.Event, next event.Handler) bool{
-			t.Errorf("Should not execute this hook.")
-			return next(event)
-		})
+	hub.AddHook(func(event event.Event, next event.Handler) bool {
+		t.Errorf("Should not execute this hook.")
+		return next(event)
+	})
 
 	hub.AddHook(func(event event.Event, next event.Handler) bool {
-			v := (event.(*simpleEvent)).Value()
-			if v != 1 {
-				t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
-			}
-			(event.(*simpleEvent)).value = 2
-			return true // Not calling next.
-		})
+		v := (event.(*simpleEvent)).Value()
+		if v != 1 {
+			t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
+		}
+		(event.(*simpleEvent)).value = 2
+		return true // Not calling next.
+	})
 
 	ret := hub.Send(newSimpleEvent(nil, 1))
 	if ret != true {
@@ -267,21 +266,21 @@ func TestEventHandlingUnhook(t *testing.T) {
 		return false
 	})
 
-	hook1 := hub.AddHook(func(event event.Event, next event.Handler) bool{
-			t.Errorf("Should not execute this hook.")
-			(event.(*simpleEvent)).SetValue(100)
-			return next(event)
-		})
+	hook1 := hub.AddHook(func(event event.Event, next event.Handler) bool {
+		t.Errorf("Should not execute this hook.")
+		(event.(*simpleEvent)).SetValue(100)
+		return next(event)
+	})
 
 	hub.AddHook(func(event event.Event, next event.Handler) bool {
-			v := (event.(*simpleEvent)).Value()
-			if v != 1 {
-				t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
-			}
-			(event.(*simpleEvent)).value = 2
-			hub.RemoveHook(hook1) // Test unhook in hook callback.
-			return next(event)
-		})
+		v := (event.(*simpleEvent)).Value()
+		if v != 1 {
+			t.Errorf("Wrong value in hook: %v. Want %v.\n", v, 1)
+		}
+		(event.(*simpleEvent)).value = 2
+		hub.RemoveHook(hook1) // Test unhook in hook callback.
+		return next(event)
+	})
 
 	event := newSimpleEvent(sender, 1)
 	ret := hub.Send(event)
@@ -290,13 +289,13 @@ func TestEventHandlingUnhook(t *testing.T) {
 	}
 	value := event.Value()
 	if value != -1 {
-		t.Errorf("Wrong value after send: %v Wnat %v.\n",  value, -1)
+		t.Errorf("Wrong value after send: %v Wnat %v.\n", value, -1)
 	}
 }
 
 type simpleEvent struct {
 	sender interface{}
-	value int
+	value  int
 }
 
 func newSimpleEvent(sender interface{}, value int) *simpleEvent {
@@ -314,4 +313,3 @@ func (event *simpleEvent) Value() int {
 func (event *simpleEvent) SetValue(value int) {
 	event.value = value
 }
-

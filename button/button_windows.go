@@ -2,12 +2,12 @@ package button
 
 import (
 	"github.com/mkch/rw"
-	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/native"
-	"github.com/mkch/rw/util/ustr"
+	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/internal/native/windows/window/winutil"
-	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
+	"github.com/mkch/rw/util/ustr"
 	"unsafe"
 )
 
@@ -22,9 +22,9 @@ func (m *HandleManager) Create(b util.Bundle) native.Handle {
 
 type buttonImpl struct {
 	rw.Control
-	onClick event.Hub
-    title string
-    mnemonic rune
+	onClick  event.Hub
+	title    string
+	mnemonic rune
 }
 
 func (b *buttonImpl) Mnemonic() rune {
@@ -32,11 +32,11 @@ func (b *buttonImpl) Mnemonic() rune {
 }
 
 func (b *buttonImpl) SetMnemonic(k rune) {
-    if k == b.mnemonic {
-        return
-    }
-    b.mnemonic = k
-    b.updateDisplayTitle()
+	if k == b.mnemonic {
+		return
+	}
+	b.mnemonic = k
+	b.updateDisplayTitle()
 }
 
 func (b *buttonImpl) Title() string {
@@ -44,15 +44,15 @@ func (b *buttonImpl) Title() string {
 }
 
 func (b *buttonImpl) SetTitle(title string) {
-    if title == b.title {
-        return
-    }
-    b.title = title
-    b.updateDisplayTitle()
+	if title == b.title {
+		return
+	}
+	b.title = title
+	b.updateDisplayTitle()
 }
 
-func (b* buttonImpl) updateDisplayTitle () {
-    window.SetWindowText(b.Wrapper().Handle(), util.Windows_ControlTitleWithMnemonic(b.title, b.mnemonic))
+func (b *buttonImpl) updateDisplayTitle() {
+	window.SetWindowText(b.Wrapper().Handle(), util.Windows_ControlTitleWithMnemonic(b.title, b.mnemonic))
 }
 
 func (b *buttonImpl) OnClick() *event.Hub {

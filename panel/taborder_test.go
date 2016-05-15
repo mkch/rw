@@ -2,23 +2,22 @@ package panel_test
 
 import (
 	"github.com/mkch/rw"
-	"github.com/mkch/rw/window"
 	"github.com/mkch/rw/button"
 	"github.com/mkch/rw/menu"
 	"github.com/mkch/rw/panel"
+	"github.com/mkch/rw/window"
 	//"github.com/mkch/rw/event"
-	"testing"
 	"image/color"
+	"testing"
 )
 
 func TestTabOrder(t *testing.T) {
-	rw.Run(func(){startup(t)})
+	rw.Run(func() { startup(t) })
 }
-
 
 func startup(t *testing.T) {
 	win := window.New()
-	win.OnClose().SetListener(func(){rw.Exit()})
+	win.OnClose().SetListener(func() { rw.Exit() })
 
 	btn1 := button.New()
 	btn1.SetTitle("1")
@@ -52,50 +51,49 @@ func startup(t *testing.T) {
 	content.Add(btn4)
 	content.Add(p)
 
-
 	m := menu.NewBuilder().
 		BeginItem("Ops").
-			BeginSubmenu().
-				BeginItem("5 4 3 2 1").
-				SetOnClickListener(func(){
-					btn4.SetTabOrder(1)
-					btn3.SetTabOrder(2)
-					btn2.SetTabOrder(3)
-					btn1.SetTabOrder(4)
-				}).
-				End().
-				BeginItem("5 1 4 2 3").
-				SetOnClickListener(func(){
-					btn5.SetTabOrder(8)
-					btn1.SetTabOrder(100)
-					btn2.SetTabOrder(111)
-					btn3.SetTabOrder(111)
-					btn4.SetTabOrder(100)
-				}).
-				End().
-				BeginItem("2.SetTabStop(false)").
-				SetOnClickListener(func(){
-					btn2.SetTabStop(false)
-				}).
-				End().
-				BeginItem("2.SetTabStop(true)").
-				SetOnClickListener(func(){
-					btn2.SetTabStop(true)
-				}).
-				End().
-				BeginItem("panel.SetTabStop(true)").
-				SetOnClickListener(func(){
-					p.SetTabStop(true)
-				}).
-				End().
-				BeginItem("panel.SetTabStop(false)").
-				SetOnClickListener(func(){
-					p.SetTabStop(false)
-				}).
-				End().
-			End().
+		BeginSubmenu().
+		BeginItem("5 4 3 2 1").
+		SetOnClickListener(func() {
+			btn4.SetTabOrder(1)
+			btn3.SetTabOrder(2)
+			btn2.SetTabOrder(3)
+			btn1.SetTabOrder(4)
+		}).
 		End().
-	Build()
+		BeginItem("5 1 4 2 3").
+		SetOnClickListener(func() {
+			btn5.SetTabOrder(8)
+			btn1.SetTabOrder(100)
+			btn2.SetTabOrder(111)
+			btn3.SetTabOrder(111)
+			btn4.SetTabOrder(100)
+		}).
+		End().
+		BeginItem("2.SetTabStop(false)").
+		SetOnClickListener(func() {
+			btn2.SetTabStop(false)
+		}).
+		End().
+		BeginItem("2.SetTabStop(true)").
+		SetOnClickListener(func() {
+			btn2.SetTabStop(true)
+		}).
+		End().
+		BeginItem("panel.SetTabStop(true)").
+		SetOnClickListener(func() {
+			p.SetTabStop(true)
+		}).
+		End().
+		BeginItem("panel.SetTabStop(false)").
+		SetOnClickListener(func() {
+			p.SetTabStop(false)
+		}).
+		End().
+		End().
+		End().
+		Build()
 
 	win.SetMenu(m)
 	rw.SetMainMenu(m)

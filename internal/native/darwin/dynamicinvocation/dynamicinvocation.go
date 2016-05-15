@@ -5,10 +5,10 @@ package dynamicinvocation
 import "C"
 
 import (
-	"unsafe"
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/stackescape"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util/ustr"
+	"unsafe"
 )
 
 type Callback func(selector string, invocationArgs native.Handle)
@@ -25,7 +25,7 @@ func callDynamicInvocationCallback(id uintptr, selector *C.char, args C.OBJC_PTR
 
 func RWDynamicInvocation_initWithMethodsCallback(methods []string, callback Callback) native.Handle {
 	var array []byte
-	for _,str := range methods {
+	for _, str := range methods {
 		array = append(append(array, str...), 0)
 	}
 	return native.Handle(C.RWDynamicInvocation_initWithMethodsUserData((*C.char)(ustr.CStringUtf8(string(array))), C.UINTPTR(stackescape.Add(callback))))

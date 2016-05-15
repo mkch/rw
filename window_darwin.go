@@ -4,19 +4,19 @@ import (
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/darwin/app"
 	"github.com/mkch/rw/internal/native/darwin/date"
-	"github.com/mkch/rw/internal/native/darwin/runloop"
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
 	nativeEvent "github.com/mkch/rw/internal/native/darwin/event"
 	"github.com/mkch/rw/internal/native/darwin/notification"
 	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/internal/native/darwin/runloop"
 	"github.com/mkch/rw/internal/native/darwin/screen"
 	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/internal/native/darwin/window"
-	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/windowstyle"
 	s "github.com/mkch/rw/internal/windowstyle"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 	"unsafe"
 )
 
@@ -33,7 +33,7 @@ type windowBase struct {
 	modalResult             interface{}
 	y                       int
 	recalcTabOrderScheduled bool
-	inModal bool // Whether this window is in modal(application modal or window modal).
+	inModal                 bool // Whether this window is in modal(application modal or window modal).
 }
 
 func flipWindowY(y, height int, _screen native.Handle) int {
@@ -126,7 +126,6 @@ func (w *windowBase) Close() {
 	}
 }
 
-
 func (w *windowBase) Frame() Rect {
 	handle := w.Wrapper().Handle()
 	x, y, width, height := window.NSWindow_frame(handle)
@@ -178,7 +177,7 @@ func (w *windowBase) SetContent(content Container) {
 
 func (w *windowBase) ShowModal(parent Window) interface{} {
 	w.inModal = true
-	defer func() {w.inModal = false}()
+	defer func() { w.inModal = false }()
 
 	handle := w.Wrapper().Handle()
 	if parent == nil { // Application modal.
@@ -208,9 +207,9 @@ func (w *windowBase) ShowModal(parent Window) interface{} {
 		// Run a short circuit event loop here to wait for sheet completion. Sheet completion is asynchronous.
 		for !completed {
 			nextEvent := app.NSApplication_nextEventMatchingMask_untilDate_inMode_dequeue(app.NSApp(),
-				nativeEvent.NSAnyEventMask, //mask
+				nativeEvent.NSAnyEventMask,   //mask
 				date.NSDate_distantFuture(),  // expiration.
-				runloop.NSDefaultRunLoopMode,   // mode.
+				runloop.NSDefaultRunLoopMode, // mode.
 				true, // flag
 			)
 			if nextEvent == 0 {

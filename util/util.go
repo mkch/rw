@@ -1,11 +1,11 @@
 package util
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/native"
 )
 
-type Bundle map[string] interface{}
+type Bundle map[string]interface{}
 
 type HandleManager interface {
 	// Create creates a new native object. The Bundle is provided by Recreate, nil if isn't called by Recreate.
@@ -19,7 +19,7 @@ type HandleManager interface {
 }
 
 type WrapperEvent struct {
-	sender interface{}
+	sender     interface{}
 	recreating bool
 }
 
@@ -54,11 +54,11 @@ type Wrapper interface {
 
 // WrapperImpl implements Wrapper interface.
 type WrapperImpl struct {
-	handle native.Handle
-	isRecreating bool
-	hm HandleManager
+	handle          native.Handle
+	isRecreating    bool
+	hm              HandleManager
 	afterRegistered event.HookChain
-	afterDestroyed event.HookChain
+	afterDestroyed  event.HookChain
 }
 
 func (w *WrapperImpl) Handle() native.Handle {
@@ -116,7 +116,6 @@ func InitWithHandle(w WrapperHolder, handle native.Handle) {
 	register(w)
 }
 
-
 // register register Wrapper to it's WrapperTable
 func register(w WrapperHolder) {
 	w.Wrapper().HandleManager().Table().Register(w)
@@ -129,12 +128,12 @@ func register(w WrapperHolder) {
 // Recreate destroys the existing native object and create a new one.
 // The bundle is passed to HandleManager.Create.
 func Recreate(w WrapperHolder, b Bundle) {
-    wrapper := w.Wrapper()
-    handleManager := wrapper.HandleManager()
+	wrapper := w.Wrapper()
+	handleManager := wrapper.HandleManager()
 
 	wrapper.setRecreating(true)
 	defer wrapper.setRecreating(false)
-    handleManager.Destroy(wrapper.Handle())
+	handleManager.Destroy(wrapper.Handle())
 	wrapper.setHandle(handleManager.Create(b))
 	register(w)
 }

@@ -4,10 +4,9 @@ package button
 //#include "button.h"
 import "C"
 
-
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/control"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util/ustr"
 )
 

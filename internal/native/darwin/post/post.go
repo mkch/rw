@@ -13,7 +13,7 @@ func Init() {
 	C.initPostOnMainThread(C.FN_POST_CALLBACK(C.safePostCallback), C.FN_POST_CALLBACK(C.unsafePostCallback))
 }
 
-var safePostTable = stackescape.NewSafeTable();
+var safePostTable = stackescape.NewSafeTable()
 
 //export safePostCallback
 func safePostCallback(userData uintptr) {

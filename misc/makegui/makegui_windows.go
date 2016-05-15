@@ -2,18 +2,18 @@ package main
 
 /*
 #cgo CFLAGS: -D UNICODE
-#include "makegui_windows.h"	
+#include "makegui_windows.h"
 */
 import "C"
 
 import (
 	"flag"
-	"os"
 	"fmt"
-	"io"
-	"unsafe"
-	"unicode/utf16"
 	"github.com/mkch/rw/util/icon"
+	"io"
+	"os"
+	"unicode/utf16"
+	"unsafe"
 )
 
 func main() {
@@ -53,7 +53,7 @@ func makegui(path string) bool {
 		return false
 	}
 	// Read IMAGE_DOS_HEADER.e_lfanew
-	if _, err = f.Seek(int64(unsafe.Offsetof(C.PIMAGE_DOS_HEADER(nil).e_lfanew)) , 0); err != nil {
+	if _, err = f.Seek(int64(unsafe.Offsetof(C.PIMAGE_DOS_HEADER(nil).e_lfanew)), 0); err != nil {
 		printError(err)
 		return false
 	}
@@ -63,7 +63,7 @@ func makegui(path string) bool {
 		return false
 	}
 	// Seek to IMAGE_NT_HEADERS
-	if _, err = f.Seek(int64(fileOffsetToNtHdrs) , 0); err != nil {
+	if _, err = f.Seek(int64(fileOffsetToNtHdrs), 0); err != nil {
 		printError(err)
 		return false
 	}
@@ -99,7 +99,7 @@ func makegui(path string) bool {
 	}
 	// Seek to IMAGE_OPTIONAL_HEADER.Subsystem
 	var fileOffsetToSubsystem int64
-	if fileOffsetToSubsystem, err = f.Seek(subsystemOffset-int64(unsafe.Sizeof(optHdrMagic)) , 1); err != nil {
+	if fileOffsetToSubsystem, err = f.Seek(subsystemOffset-int64(unsafe.Sizeof(optHdrMagic)), 1); err != nil {
 		printError(err)
 		return false
 	}
@@ -141,8 +141,8 @@ func go_enumResourceNamesCallback(name C.LPCTSTR, param unsafe.Pointer) {
 // firstGroupIconResource returns the first RT_GROUP_ICON resource(ico in resource format) ID
 // and the RT_ICON ids in the group, in the module file(exe or dll).
 // path is the UTF-16 format file path to the module.
-func firstGroupIconResource(path *C.WCHAR)(ok bool, groupId *C.WCHAR, iconIds []*C.WCHAR) {
-	h := C.LoadLibraryEx(path, nil, C._LOAD_LIBRARY_AS_DATAFILE);
+func firstGroupIconResource(path *C.WCHAR) (ok bool, groupId *C.WCHAR, iconIds []*C.WCHAR) {
+	h := C.LoadLibraryEx(path, nil, C._LOAD_LIBRARY_AS_DATAFILE)
 	if h == nil {
 		printLastError("LoadLibraryEx")
 		return
@@ -181,8 +181,8 @@ func firstGroupIconResource(path *C.WCHAR)(ok bool, groupId *C.WCHAR, iconIds []
 	grpHdr := (*icon.IconDirHeader)(unsafe.Pointer(uintptr(pRes)))
 	iconIds = make([]*C.WCHAR, *grpHdr.Count())
 	// N icon.GrpIconDirEntry(s) follow the icon.IconDirHeader
-	for i:=0; i < len(iconIds); i++ {
-		entry := (*icon.GrpIconDirEntry)(unsafe.Pointer(uintptr(pRes)+unsafe.Sizeof(*grpHdr)+unsafe.Sizeof(icon.GrpIconDirEntry{})*uintptr(i)))
+	for i := 0; i < len(iconIds); i++ {
+		entry := (*icon.GrpIconDirEntry)(unsafe.Pointer(uintptr(pRes) + unsafe.Sizeof(*grpHdr) + unsafe.Sizeof(icon.GrpIconDirEntry{})*uintptr(i)))
 		//fmt.Println(entry)
 		iconIds[i] = C._MAKEINTRESOURCE(C.WORD(*entry.ID()))
 	}
@@ -198,7 +198,7 @@ func changeIcon(exe, ico string) bool {
 	} else if grp != nil {
 		fmt.Fprintf(os.Stdout, "Already has icon. 0x%X %X\n", grp, icons)
 	}
-	
+
 	hUpdate := C.BeginUpdateResource(exe16, C.FALSE)
 	if hUpdate == nil {
 		printLastError("BeginUpdateResource")
@@ -229,14 +229,14 @@ func changeIcon(exe, ico string) bool {
 	}
 	var addedIconResIds []uint16
 	// Add new icon
-	hModule := C.LoadLibraryEx(exe16, nil, C._LOAD_LIBRARY_AS_DATAFILE);
+	hModule := C.LoadLibraryEx(exe16, nil, C._LOAD_LIBRARY_AS_DATAFILE)
 	if hUpdate == nil {
 		printLastError("LoadLibraryEx")
 		return false
 	}
 	defer C.FreeLibrary(hModule)
 	var lastFreeIconId uint16 = 1
-	for i:=0; i<len(iconData.Images); i++ {
+	for i := 0; i < len(iconData.Images); i++ {
 		var iconID uint16
 		if len(icons) > 0 {
 			iconID = uint16(uintptr(unsafe.Pointer(icons[0])))
@@ -245,10 +245,10 @@ func changeIcon(exe, ico string) bool {
 		if iconID == 0 {
 			// Find a free ID
 			// https://msdn.microsoft.com/en-us/library/t2zechd4.aspx
-			for nextId:=lastFreeIconId; nextId<0x6FFF; nextId++ {
+			for nextId := lastFreeIconId; nextId < 0x6FFF; nextId++ {
 				if C.FindResource(hModule, C._MAKEINTRESOURCE(C.WORD(nextId)), (*C.WCHAR)(unsafe.Pointer(C._RT_ICON))) == nil {
 					iconID = nextId
-					lastFreeIconId = nextId+1
+					lastFreeIconId = nextId + 1
 					break
 				}
 			}
@@ -272,7 +272,7 @@ func changeIcon(exe, ico string) bool {
 		}
 	} else {
 		// Find a free group icon resource ID.
-		for i:=uint16(1); i<0x6FFF; i++ {
+		for i := uint16(1); i < 0x6FFF; i++ {
 			if C.FindResource(hModule, C._MAKEINTRESOURCE(C.WORD(i)), (*C.WCHAR)(unsafe.Pointer(C._RT_GROUP_ICON))) == nil {
 				grp = C._MAKEINTRESOURCE(C.WORD(i))
 				break
@@ -288,8 +288,8 @@ func changeIcon(exe, ico string) bool {
 	hdr := (*icon.IconDirHeader)(unsafe.Pointer(&groupIconData[0]))
 	*hdr.Type() = iconData.Type
 	*hdr.Count() = uint16(len(iconData.Images))
-	for i:=uint16(0); i<uint16(len(iconData.Images)); i++ {
-		entry := (*icon.GrpIconDirEntry)(unsafe.Pointer( uintptr(unsafe.Pointer(hdr))+unsafe.Sizeof(icon.IconDirHeader{})+uintptr(i)*unsafe.Sizeof(icon.GrpIconDirEntry{}) ))
+	for i := uint16(0); i < uint16(len(iconData.Images)); i++ {
+		entry := (*icon.GrpIconDirEntry)(unsafe.Pointer(uintptr(unsafe.Pointer(hdr)) + unsafe.Sizeof(icon.IconDirHeader{}) + uintptr(i)*unsafe.Sizeof(icon.GrpIconDirEntry{})))
 		*entry.Width() = *iconData.Images[i].Entry.Width()
 		*entry.Height() = *iconData.Images[i].Entry.Height()
 		*entry.ColorCount() = *iconData.Images[i].Entry.ColorCount()
@@ -306,7 +306,6 @@ func changeIcon(exe, ico string) bool {
 	return true
 }
 
-
 func printError(err error) {
 	fmt.Fprintln(os.Stderr, err)
 }
@@ -319,12 +318,11 @@ func toUtf16(s string) *C.WCHAR {
 
 func fromUtf16(s *C.WCHAR) string {
 	var count uint
-	for p:=s; *p!=0; p=(*C.WCHAR)(unsafe.Pointer(uintptr(unsafe.Pointer(p))+unsafe.Sizeof(C.WCHAR(0)))) {
+	for p := s; *p != 0; p = (*C.WCHAR)(unsafe.Pointer(uintptr(unsafe.Pointer(p)) + unsafe.Sizeof(C.WCHAR(0)))) {
 		count++
 	}
-	return string(utf16.Decode((*[^uintptr(0)/2/unsafe.Sizeof(uint16(0))]uint16)(unsafe.Pointer(s))[:count]))
+	return string(utf16.Decode((*[^uintptr(0) / 2 / unsafe.Sizeof(uint16(0))]uint16)(unsafe.Pointer(s))[:count]))
 }
-
 
 func getLastErrorMessage(lastError C.DWORD) (errorMessage string) {
 	var lastErrorMessageBuffer C.LPWSTR
@@ -332,7 +330,7 @@ func getLastErrorMessage(lastError C.DWORD) (errorMessage string) {
 		defer C.LocalFree(C.HLOCAL(lastErrorMessageBuffer))
 		return fromUtf16(lastErrorMessageBuffer)
 	}
-    panic("FormatMessage failed!")
+	panic("FormatMessage failed!")
 }
 
 func printLastError(name string) {

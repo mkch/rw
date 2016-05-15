@@ -91,5 +91,4 @@ func newControlTemplate() Control {
 }
 
 // ControlHandleManagerBase is the building block of HandleManager of concrete Control types.
-type ControlHandleManagerBase struct {objcHandleManagerBase}
-
+type ControlHandleManagerBase struct{ objcHandleManagerBase }

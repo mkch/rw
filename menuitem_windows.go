@@ -5,9 +5,9 @@ import (
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/acceltable"
 	"github.com/mkch/rw/internal/native/windows/menu"
-	"github.com/mkch/rw/util/ustr"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
+	"github.com/mkch/rw/util/ustr"
 	"strings"
 	"unicode"
 )
@@ -295,7 +295,7 @@ func newMenuItemTemplate(separator bool) MenuItem {
 	return item
 }
 
-type MenuItemHandleManager struct{
+type MenuItemHandleManager struct {
 	Windows_Id native.Handle
 }
 
@@ -310,7 +310,6 @@ func (h *MenuItemHandleManager) Valid(handle native.Handle) bool {
 func (h *MenuItemHandleManager) Table() util.ObjectTable {
 	return menuItemTable
 }
-
 
 func (h *MenuItemHandleManager) Create(util.Bundle) native.Handle {
 	return h.Windows_Id

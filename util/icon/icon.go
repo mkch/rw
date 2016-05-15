@@ -111,13 +111,12 @@ func (entry *GrpIconDirEntry) ID() *uint16 {
 
 type Image struct {
 	Entry IconDirEntry
-	Data []byte
+	Data  []byte
 }
 
 type Icon struct {
-	Type uint16 // See IconDirHeader.Type()
+	Type   uint16 // See IconDirHeader.Type()
 	Images []Image
-
 }
 
 type FileFormatError struct {
@@ -149,7 +148,7 @@ func Read(r io.Reader) (result *Icon, err error) {
 	result = &Icon{Type: *header.Type(), Images: make([]Image, *header.Count())}
 
 	// Read []IconDirEntry
-	for i:=uint16(0); i<*header.Count(); i++ {
+	for i := uint16(0); i < *header.Count(); i++ {
 		if n, err = io.ReadFull(r, result.Images[i].Entry[:]); err != nil {
 			return
 		}
@@ -162,12 +161,11 @@ func Read(r io.Reader) (result *Icon, err error) {
 		return
 	}
 
-	for i:=uint16(0); i<*header.Count(); i++ {
-		start := *result.Images[i].Entry.ImageOffset()-uint32(bytesBeforeData)
+	for i := uint16(0); i < *header.Count(); i++ {
+		start := *result.Images[i].Entry.ImageOffset() - uint32(bytesBeforeData)
 		size := *result.Images[i].Entry.BytesInRes()
-		result.Images[i].Data = data[start:start+size]
+		result.Images[i].Data = data[start : start+size]
 	}
-
 
 	return
 }

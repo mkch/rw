@@ -4,8 +4,8 @@ package post
 import "C"
 
 import (
-	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/internal/native/windows/nativeutil"
+	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/internal/stackescape"
 	"github.com/mkch/rw/native"
 )
@@ -15,7 +15,7 @@ func runUnsafePostedFunc(id uintptr) {
 	stackescape.Get(stackescape.Id(id)).(func())()
 }
 
-var safePostTable = stackescape.NewSafeTable();
+var safePostTable = stackescape.NewSafeTable()
 
 //export runSafePostedFunc
 func runSafePostedFunc(id uintptr) {
@@ -38,4 +38,3 @@ func Init() {
 		nativeutil.PanicWithLastError()
 	}
 }
-

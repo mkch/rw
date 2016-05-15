@@ -5,10 +5,10 @@ package window
 import "C"
 
 import (
+	"github.com/mkch/rw/internal/native/darwin/event"
+	"github.com/mkch/rw/internal/stackescape"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util/ustr"
-	"github.com/mkch/rw/internal/stackescape"
-	"github.com/mkch/rw/internal/native/darwin/event"
 )
 
 func NSWindow_makeFirstResponder(w native.Handle, responder native.Handle) bool {
@@ -35,7 +35,7 @@ func NSWindow_setContentView(win, view native.Handle) {
 	C.NSWindow_setContentView(C.OBJC_PTR(win), C.OBJC_PTR(view))
 }
 
-func NSWindow_frame(w native.Handle)(x, y, width, height int) {
+func NSWindow_frame(w native.Handle) (x, y, width, height int) {
 	rect := C.NSWindow_frame(C.OBJC_PTR(w))
 	return int(rect.origin.x), int(rect.origin.y), int(rect.size.width), int(rect.size.height)
 }
@@ -48,13 +48,13 @@ func NSWindow_center(win native.Handle) {
 	C.NSWindow_center(C.OBJC_PTR(win))
 }
 
-func NSWindow_frameRectForContentRect_styleMask(contentX, contentY, contentWidth, contentHeight int, style uint)(x, y, width, height int) {
+func NSWindow_frameRectForContentRect_styleMask(contentX, contentY, contentWidth, contentHeight int, style uint) (x, y, width, height int) {
 	rect := C.NSWindow_frameRectForContentRect_styleMask(C.CGRectMake(C.CGFloat(contentX), C.CGFloat(contentY), C.CGFloat(contentWidth), C.CGFloat(contentHeight)), C.UINTPTR(style))
 	return int(rect.origin.x), int(rect.origin.y), int(rect.size.width), int(rect.size.height)
 
 }
 
-func NSWindow_contentRectForFrameRect_styleMask(frameX, frameY, frameWidth, frameHeight int, style uint)(x, y, width, height int) {
+func NSWindow_contentRectForFrameRect_styleMask(frameX, frameY, frameWidth, frameHeight int, style uint) (x, y, width, height int) {
 	rect := C.NSWindow_contentRectForFrameRect_styleMask(C.CGRectMake(C.CGFloat(frameX), C.CGFloat(frameY), C.CGFloat(frameWidth), C.CGFloat(frameHeight)), C.UINTPTR(style))
 	return int(rect.origin.x), int(rect.origin.y), int(rect.size.width), int(rect.size.height)
 
@@ -69,8 +69,8 @@ func NSWindow_performClose(win, sender native.Handle) {
 }
 
 var (
-	NSModalResponseStop = int(C.VarNSModalResponseStop)
-	NSModalResponseAbort = int(C.VarNSModalResponseAbort)
+	NSModalResponseStop     = int(C.VarNSModalResponseStop)
+	NSModalResponseAbort    = int(C.VarNSModalResponseAbort)
 	NSModalResponseContinue = int(C.VarNSModalResponseContinue)
 )
 
@@ -106,7 +106,7 @@ func NSWindow_sheetParent(w native.Handle) native.Handle {
 }
 
 func NSWindow_discardEventsMatchingMask_beforeEvent(w native.Handle, eventMask event.NSEventMask, lastEvent native.Handle) {
-	C.NSWindow_discardEventsMatchingMask_beforeEvent(C.OBJC_PTR(w), C.ulong(eventMask), C.OBJC_PTR(lastEvent));
+	C.NSWindow_discardEventsMatchingMask_beforeEvent(C.OBJC_PTR(w), C.ulong(eventMask), C.OBJC_PTR(lastEvent))
 }
 
 func NSWindow_sendEvent(w, evt native.Handle) {
@@ -146,7 +146,7 @@ type NSWindowOrderingMode int
 var (
 	NSWindowAbove = NSWindowOrderingMode(C.VarNSWindowAbove)
 	NSWindowBelow = NSWindowOrderingMode(C.VarNSWindowBelow)
-	NSWindowOut = NSWindowOrderingMode(C.VarNSWindowOut)
+	NSWindowOut   = NSWindowOrderingMode(C.VarNSWindowOut)
 )
 
 func NSWindow_orderWindow_relativeTo(w native.Handle, mode NSWindowOrderingMode, otherWindowNumber int) {
@@ -171,11 +171,11 @@ func NSWindow_screen(w native.Handle) native.Handle {
 
 func initWindow(w C.OBJC_PTR, x, y, width, height int, style uint) native.Handle {
 	rect := C.CGRectMake(C.CGFloat(x), C.CGFloat(y), C.CGFloat(width), C.CGFloat(height))
-	winPtr := C.NSWindow_initWithContentRect_styleMask_backing_defer_screen(w, 
-			rect, 
-			C.UINTPTR(style), 
-			2, // NSBackingStoreBuffered
-			false, nil)
+	winPtr := C.NSWindow_initWithContentRect_styleMask_backing_defer_screen(w,
+		rect,
+		C.UINTPTR(style),
+		2, // NSBackingStoreBuffered
+		false, nil)
 	return native.Handle(winPtr)
 }
 

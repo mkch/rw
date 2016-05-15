@@ -4,8 +4,8 @@ package autoreleasepool
 import "C"
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/native"
 )
 
 func NSAutoreleasePool_alloc() native.Handle {
@@ -18,7 +18,7 @@ func NSAutoreleasePool_alloc() native.Handle {
 // is equivalent to
 //  // objective-c code
 //  @autoreleasepool {
-//    f();	
+//    f();
 //  }
 func Run(f func()) {
 	pool := object.NSObject_init(NSAutoreleasePool_alloc())

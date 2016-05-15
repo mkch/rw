@@ -1,17 +1,17 @@
 package util
 
-import(
-    "strings"
-    "io"
+import (
 	"fmt"
 	"github.com/mkch/rw/native"
+	"io"
+	"strings"
 )
 
 // Windows_ControlTitleWithMnemonic applys the mnemonic char to the title.
 // Only available in Windows platform.
 func Windows_ControlTitleWithMnemonic(title string, mnemonic rune) string {
 	if mnemonic == '&' {
-		panic ("& is not a valid mnemonic")
+		panic("& is not a valid mnemonic")
 	}
 	if mnemonic != 0 {
 		if index := strings.IndexRune(strings.Replace(title, "&", "&&", -1), mnemonic); index != -1 {

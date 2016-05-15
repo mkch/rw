@@ -3,14 +3,14 @@ package event
 // hookItem represents an entry in the hook chain.
 // Next and Call of zero value of hookItem return false.
 type hookItem struct {
-	callback Handler // The callback function of this item.
-	next *hookItem	// Next hook item in the chain.
+	callback Handler   // The callback function of this item.
+	next     *hookItem // Next hook item in the chain.
 }
 
 // Next calls the next hook item and returns its return value.
 // False is returned if no next item evailable.
 func (i *hookItem) Next(event Event) bool {
-	if i.next != nil && i.next.callback != nil{
+	if i.next != nil && i.next.callback != nil {
 		return i.next.callback(event)
 	} else {
 		return false
@@ -20,7 +20,7 @@ func (i *hookItem) Next(event Event) bool {
 // Call calls the callback of this item.
 // False is returned if no callbak is available.
 func (i *hookItem) Call(event Event) bool {
-	if i.callback == nil  {
+	if i.callback == nil {
 		return false
 	}
 	return i.callback(event)
@@ -41,7 +41,7 @@ type HookItem *hookItem
 type HookChain struct {
 	//DefaultReturnValue is used as the return value of Call if no hook is added.
 	DefaultReturnValue bool
-	item *hookItem
+	item               *hookItem
 }
 
 // HasCallback returns whether the hook has any callbasks.
@@ -75,8 +75,8 @@ func (h *HookChain) addFront(handler Handler) *hookItem {
 // The returned HookItem value can be used to call RemoveHook.
 func (h *HookChain) AddHook(callback Callback) HookItem {
 	var item *hookItem
-	item = h.addFront(func (event Event) bool {
-		return callback(event, func(event Event) bool{ return item.Next(event) })
+	item = h.addFront(func(event Event) bool {
+		return callback(event, func(event Event) bool { return item.Next(event) })
 	})
 	return item
 }
@@ -88,9 +88,9 @@ func panicWhenCalled(event Event) bool {
 // Contains returns whether item is this hook chain.
 func (h *HookChain) Contains(item HookItem) bool {
 	if item == nil {
-		panic ("nil hook item")
+		panic("nil hook item")
 	}
-	
+
 	for p := h.item; p != nil; p = p.next {
 		if p == item {
 			return true
@@ -100,7 +100,7 @@ func (h *HookChain) Contains(item HookItem) bool {
 }
 
 // RemoveHook removes a callback from the chain.
-func (h *HookChain)RemoveHook(item HookItem) {
+func (h *HookChain) RemoveHook(item HookItem) {
 	if h.item == item {
 		h.item = item.next
 		// panic when operating item after unhook.
@@ -122,5 +122,3 @@ func (h *HookChain)RemoveHook(item HookItem) {
 	item.callback = panicWhenCalled
 	item.next = nil
 }
-
-

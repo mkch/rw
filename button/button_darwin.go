@@ -2,15 +2,15 @@ package button
 
 import (
 	"github.com/mkch/rw"
-	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/native"
-	"github.com/mkch/rw/internal/native/darwin/object"
-	"github.com/mkch/rw/internal/native/darwin/runtime"
+	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/darwin/button"
 	"github.com/mkch/rw/internal/native/darwin/control"
 	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
-	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/internal/native/darwin/object"
+	"github.com/mkch/rw/internal/native/darwin/runtime"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 )
 
 func (m *HandleManager) Create(b util.Bundle) native.Handle {
@@ -27,7 +27,7 @@ func (b *buttonImpl) Mnemonic() rune {
 }
 
 func (b *buttonImpl) SetMnemonic(k rune) {
-    // Do nothing.
+	// Do nothing.
 }
 
 func (b *buttonImpl) Title() string {
@@ -35,7 +35,7 @@ func (b *buttonImpl) Title() string {
 }
 
 func (b *buttonImpl) SetTitle(title string) {
-    button.NSButton_setTitle(b.Wrapper().Handle(), title)
+	button.NSButton_setTitle(b.Wrapper().Handle(), title)
 }
 
 func (b *buttonImpl) ensureTargetAction() {
@@ -45,25 +45,22 @@ func (b *buttonImpl) ensureTargetAction() {
 	}
 	const targetAction = "targetAction:"
 	d := dynamicinvocation.RWDynamicInvocation_initWithMethodsCallback([]string{
-			targetAction, "v@:@",
-		}, func(selector string, args native.Handle) {
-			switch selector {
-			case targetAction:
-				b.onClick.Send(&event.SimpleEvent{b.Self()})
-			}
-			})
+		targetAction, "v@:@",
+	}, func(selector string, args native.Handle) {
+		switch selector {
+		case targetAction:
+			b.onClick.Send(&event.SimpleEvent{b.Self()})
+		}
+	})
 	object.SetTargetRetain(handle, d)
 	object.NSObject_release(d)
 	control.NSControl_setAction(handle, runtime.RegisterSelector(targetAction))
 }
 
-
 func (b *buttonImpl) OnClick() *event.Hub {
 	b.ensureTargetAction()
 	return &b.onClick
 }
-
-
 
 func New() Button {
 	b := Alloc()

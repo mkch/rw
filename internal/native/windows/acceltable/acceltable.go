@@ -4,17 +4,17 @@ package acceltable
 import "C"
 
 import (
-	"github.com/mkch/rw/internal/native/windows/post"
+	"bytes"
+	"fmt"
 	"github.com/mkch/rw/internal/native/windows/nativeutil"
+	"github.com/mkch/rw/internal/native/windows/post"
 	"github.com/mkch/rw/native"
 	"unsafe"
-	"fmt"
-	"bytes"
 )
 
 type ACCEL C.ACCEL
 
-func(accel ACCEL) String() string {
+func (accel ACCEL) String() string {
 	return fmt.Sprintf("{fVirt=0x%x key=0x%x(%v) cmd=0x%x}", accel.fVirt, accel.key, string(accel.key), accel.cmd)
 }
 
@@ -27,7 +27,7 @@ type AccelTable struct {
 	accelTableEntries []C.ACCEL
 	// nil value for deletion, other values for updating and adding.
 	pendingChanges map[C.WORD]*C.ACCEL
-	onChanged func(native.Handle)
+	onChanged      func(native.Handle)
 }
 
 func (t *AccelTable) String() string {
@@ -55,11 +55,11 @@ func (t *AccelTable) Destroy() {
 }
 
 const (
-    FALT = byte(C.FALT)
-    FCONTROL = byte(C.FCONTROL)
-    FNOINVERT = byte(C.FNOINVERT)
-    FSHIFT = byte(C.FSHIFT)
-    FVIRTKEY = byte(C.FVIRTKEY)
+	FALT      = byte(C.FALT)
+	FCONTROL  = byte(C.FCONTROL)
+	FNOINVERT = byte(C.FNOINVERT)
+	FSHIFT    = byte(C.FSHIFT)
+	FVIRTKEY  = byte(C.FVIRTKEY)
 )
 
 func (t *AccelTable) Add(fVirt byte, key, cmd uint16) {
@@ -67,14 +67,14 @@ func (t *AccelTable) Add(fVirt byte, key, cmd uint16) {
 		// Add.
 		post.Post(t.rebuildTable)
 		t.pendingChanges = make(map[C.WORD]*C.ACCEL)
-		t.pendingChanges[C.WORD(cmd)] = &C.ACCEL{fVirt:C.BYTE(fVirt), key:C.WORD(key), cmd:C.WORD(cmd)}
+		t.pendingChanges[C.WORD(cmd)] = &C.ACCEL{fVirt: C.BYTE(fVirt), key: C.WORD(key), cmd: C.WORD(cmd)}
 	} else if accel := t.pendingChanges[C.WORD(cmd)]; accel != nil {
 		// Update existing or readd the deleted entry.
 		accel.fVirt = C.BYTE(fVirt)
 		accel.key = C.WORD(key)
 	} else {
 		// Add.
-		t.pendingChanges[C.WORD(cmd)] = &C.ACCEL{fVirt:C.BYTE(fVirt), key:C.WORD(key), cmd:C.WORD(cmd)}
+		t.pendingChanges[C.WORD(cmd)] = &C.ACCEL{fVirt: C.BYTE(fVirt), key: C.WORD(key), cmd: C.WORD(cmd)}
 	}
 }
 
@@ -82,7 +82,7 @@ func (t *AccelTable) Remove(cmd uint16) {
 	if t.pendingChanges == nil {
 		post.Post(t.rebuildTable)
 		t.pendingChanges = make(map[C.WORD]*C.ACCEL)
-	} 
+	}
 	// Deletion.
 	t.pendingChanges[C.WORD(cmd)] = nil
 }
@@ -112,7 +112,7 @@ func (t *AccelTable) rebuildTable() {
 		}
 	}
 	//Process updating/adding
-	PendingChangesLoop:
+PendingChangesLoop:
 	for cmd, accel := range t.pendingChanges {
 		if accel == nil {
 			continue
@@ -168,4 +168,3 @@ func (t *AccelTable) rebuildTable() {
 	}
 	t.pendingChanges = nil
 }
-

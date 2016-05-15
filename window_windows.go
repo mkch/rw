@@ -2,14 +2,14 @@ package rw
 
 import (
 	"fmt"
-	"unsafe"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/acceltable"
 	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/internal/native/windows/window/winutil"
-	"github.com/mkch/rw/util/ustr"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
+	"github.com/mkch/rw/util/ustr"
+	"unsafe"
 )
 
 type WindowPlatformSpecific Windows_WindowMessageReceiver

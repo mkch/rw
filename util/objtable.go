@@ -1,23 +1,23 @@
 package util
 
 import (
+	"fmt"
 	"github.com/mkch/rw/native"
 	"io"
-	"fmt"
 )
 
 // ObjectTable is a map of native.Handle to WrapperHolder.
 type ObjectTable struct {
-	m map[native.Handle] WrapperHolder
+	m map[native.Handle]WrapperHolder
 }
 
 // NewObjectTable creates an ObjectTable.
 func NewObjectTable() ObjectTable {
-	return ObjectTable{ make(map[native.Handle]WrapperHolder) }
+	return ObjectTable{make(map[native.Handle]WrapperHolder)}
 }
 
 // Register adds an WrapperHolder to this table, using it's handle as the key.
-func (table ObjectTable)Register(obj WrapperHolder) {
+func (table ObjectTable) Register(obj WrapperHolder) {
 	handle := obj.Wrapper().Handle()
 	if _, exists := table.m[handle]; exists {
 		panic("Duplicated handle")
@@ -26,12 +26,12 @@ func (table ObjectTable)Register(obj WrapperHolder) {
 }
 
 // Query returns the WrapperHolder with the handle in the table.
-func (table ObjectTable)Query(handle native.Handle) WrapperHolder {
+func (table ObjectTable) Query(handle native.Handle) WrapperHolder {
 	return table.m[handle]
 }
 
 // Remove removes the WrapperHolder with the handle form the table, and send AfterDestroyed event to the wrapper.
-func  (table ObjectTable)Remove(handle native.Handle) {
+func (table ObjectTable) Remove(handle native.Handle) {
 	if obj, ok := table.m[handle]; !ok {
 		return
 	} else {

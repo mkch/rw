@@ -1,8 +1,8 @@
 package window_test
 
 import (
-	"github.com/mkch/rw"
 	"fmt"
+	"github.com/mkch/rw"
 )
 
 // setMenu set the app main menu to m.
