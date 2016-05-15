@@ -30,7 +30,7 @@ func EnableWindow(w native.Handle, enable bool) {
 // Cocoa does not provided a way to disable a window. See disabledWindows above
 // and goAppSendEvent below for details of the trick.
 func WindowEnabled(w native.Handle) bool {
-	return disabledWindows[w]
+	return !disabledWindows[w]
 }
 
 //export goAppSendEvent

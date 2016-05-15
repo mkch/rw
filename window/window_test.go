@@ -31,14 +31,21 @@ func startup(t *testing.T) {
 	rw.Alert("Hello", "Hello form rw.")
 	var win rw.Window = NewWindow()
 	win.SetVisible(true)
+	if win.Enabled() != true {
+		t.Errorf("Window is not initially enabled.")
+	}
 	win.SetEnabled(false)
-	fmt.Printf("Enabled: %v\n", win.Enabled())
+	if win.Enabled() != false {
+		t.Errorf("Disable window failed.")
+	}
 	go func() {
 		time.Sleep(time.Second * 3)
 		rw.Post(func() {
 			win.SetEnabled(true)
+			if win.Enabled() != true {
+				t.Errorf("Disabling window failed.")
+			}
 			win.Content().SetBackgroundColor(color.RGBA{0xFF, 0xFF, 0, 0xFF})
-			fmt.Printf("Enabled: %v\n", win.Enabled())
 		})
 	}()
 	win.OnClose().SetHandler(func(event event.Event) bool {
