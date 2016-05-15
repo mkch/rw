@@ -28,7 +28,7 @@ func NewWindow() *Window {
 }
 
 func startup(t *testing.T) {
-	rw.Alert("Hello", "Hellp form rw.")
+	rw.Alert("Hello", "Hello form rw.")
 	var win rw.Window = NewWindow()
 	win.SetVisible(true)
 	win.SetEnabled(false)
