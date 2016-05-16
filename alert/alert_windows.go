@@ -266,10 +266,6 @@ func (a *alertData) Show(parent rw.Window) {
 	}
 }
 
-func Test() {
-	messagebox.MessageBox(0, "msg", "test", messagebox.MB_ABORTRETRYIGNORE)
-}
-
 func newAlert() Alert {
 	return &alertData{}
 }
