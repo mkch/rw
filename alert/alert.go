@@ -46,9 +46,9 @@ func New() Alert {
 }
 
 // Show shows an application modal alert dialog.
-//  Show(message)
+//  alert.Show(message)
 // is equivalent to
-//	New().SetMessage(message).Show(nil)
+//	alert.New().SetMessage(message).Show(nil)
 func Show(message string) {
 	New().SetMessage(message).Show(nil)
 }

@@ -6,6 +6,24 @@ import (
 	"github.com/mkch/rw/native"
 )
 
+// Button titles for alert dialog.
+// The 7 valid button combinations on Windows platform are as following:
+//  1. Abort, Retry, Ingore
+//  2. Cancel, TryAgain, Continue
+//  3. OK
+//  4. OK, Cancel
+//  5. Retry, Cancel
+//  6. Yes, No
+//  7. Yes, No, Cancel
+// The Windows OS displays them as localized strings on the buttons of dialog. For
+// example, the combination #1 will be displayed as "中止", "重试" and  "忽略" in
+// simplified Chinese locale.
+//
+// The order of the button(s) in each combination is irrelevant. For example, the
+// following 2 lines are identical(both are the combination number #4):
+//  alert.New().SetPositiveButton(alert.OK, nil, true).SetNegativeButton(alert.Cancel, nil, false)
+//  alert.New().SetNeutralButton(alert.Cancel, nil, false).SetPositiveButton(alert.OK, nil, true)
+// Any other combination of buttons is unsupported and causes panic of "Invalid buttons".
 const (
 	Abort    string = "Abort"
 	Cancel          = "Cancel"
@@ -126,7 +144,15 @@ func (a *alertData) SetNeutralButton(title string, handler func(), asDefault boo
 }
 
 func badButtons() {
-	panic("Invalid buttons")
+	panic(
+		`Invalid buttons. The supported combinations are:
+  1. Abort, Retry, Ingore
+  2. Cancel, TryAgain, Continue
+  3. OK
+  4. OK, Cancel
+  5. Retry, Cancel
+  6. Yes, No
+  7. Yes, No, Cancel`)
 }
 
 func (a *alertData) Show(parent rw.Window) {
