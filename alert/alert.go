@@ -24,7 +24,7 @@ type Alert interface {
 	// SetStyle sets the style of the alert dialog.
 	SetStyle(style Style) Alert
 	// SetTitle sets the window title of the alert dialog. The title is ignored on Mac OS X.
-	SetTitle(message string) Alert
+	SetTitle(title string) Alert
 	// SetMessage sets the message to display in the alert dialog.
 	SetMessage(message string) Alert
 	// SetInformativeMessage optionally sets the informative(secondary) message to display in the alert dialog.
