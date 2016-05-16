@@ -29,7 +29,7 @@ func (a *alertData) SetStyle(style Style) Alert {
 	return a
 }
 
-func (a *alertData) SetTitle(message string) Alert {
+func (a *alertData) SetTitle(title string) Alert {
 	// Do nothing.
 	return a
 }
@@ -50,7 +50,7 @@ func (a *alertData) SetPositiveButton(title string, handler func(), asDefault bo
 	a.positive.def = asDefault
 	if asDefault {
 		if a.negative.def || a.neutral.def {
-			panic("Default button is already setfunc (a *alertData) ")
+			panic("Default button is already set")
 		}
 		a.positive.value = nativeAlert.NSAlertFirstButtonReturn
 		a.negative.value = nativeAlert.NSAlertFirstButtonReturn + 1
@@ -65,7 +65,7 @@ func (a *alertData) SetNegativeButton(title string, handler func(), asDefault bo
 	a.negative.def = asDefault
 	if asDefault {
 		if a.positive.def || a.neutral.def {
-			panic("Default button is already setfunc (a *alertData) ")
+			panic("Default button is already set")
 		}
 		a.positive.value = nativeAlert.NSAlertFirstButtonReturn + 1
 		a.negative.value = nativeAlert.NSAlertFirstButtonReturn
@@ -80,7 +80,7 @@ func (a *alertData) SetNeutralButton(title string, handler func(), asDefault boo
 	a.neutral.def = asDefault
 	if asDefault {
 		if a.positive.def || a.negative.def {
-			panic("Default button is already setfunc (a *alertData) ")
+			panic("Default button is already set")
 		}
 		a.positive.value = nativeAlert.NSAlertFirstButtonReturn + 1
 		a.negative.value = nativeAlert.NSAlertFirstButtonReturn + 2
