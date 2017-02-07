@@ -22,6 +22,7 @@ type button struct {
 	handler func()
 	def     bool
 	value   int
+	inUse   bool
 }
 
 func (a *alertData) SetStyle(style Style) Alert {
@@ -48,6 +49,7 @@ func (a *alertData) SetPositiveButton(title string, handler func(), asDefault bo
 	a.positive.title = title
 	a.positive.handler = handler
 	a.positive.def = asDefault
+	a.positive.inUse = true
 	if asDefault {
 		if a.negative.def || a.neutral.def {
 			panic("Default button is already set")
@@ -63,6 +65,7 @@ func (a *alertData) SetNegativeButton(title string, handler func(), asDefault bo
 	a.negative.title = title
 	a.negative.handler = handler
 	a.negative.def = asDefault
+	a.negative.inUse = true
 	if asDefault {
 		if a.positive.def || a.neutral.def {
 			panic("Default button is already set")
@@ -78,6 +81,7 @@ func (a *alertData) SetNeutralButton(title string, handler func(), asDefault boo
 	a.neutral.title = title
 	a.neutral.handler = handler
 	a.neutral.def = asDefault
+	a.neutral.inUse = true
 	if asDefault {
 		if a.positive.def || a.negative.def {
 			panic("Default button is already set")
@@ -122,12 +126,24 @@ func (a *alertData) Show(parent rw.Window) {
 	}
 	nativeAlert.NSAlert_setAlertStyle(na, style)
 	// Buttons
-	buttons := []*button{&a.positive, &a.negative, &a.neutral}
+	var buttons []*button
+	if a.positive.inUse {
+		buttons = append(buttons, &a.positive)
+	}
+	if a.negative.inUse {
+		buttons = append(buttons, &a.negative)
+	}
+	if a.neutral.inUse {
+		buttons = append(buttons, &a.neutral)
+	}
 	sort.Sort(buttonsByValue(buttons)) // The first button is the default button.
 	for _, b := range buttons {
-		nativeAlert.NSAlert_addButtonWithTitle(na, b.title)
+		title := b.title
+		if title == "" { // Empty title causes crash in NSAlert_runModal.
+			title = " "
+		}
+		nativeAlert.NSAlert_addButtonWithTitle(na, title)
 	}
-
 	var returnCode = nativeAlert.NSAlertFirstButtonReturn
 	if parent == nil {
 		returnCode = nativeAlert.NSAlert_runModal(na)
@@ -149,7 +165,7 @@ func (a *alertData) Show(parent rw.Window) {
 func newAlert() Alert {
 	return &alertData{
 		style:    Informational,
-		positive: button{value: nativeAlert.NSAlertFirstButtonReturn},
+		positive: button{value: nativeAlert.NSAlertFirstButtonReturn, title: "OK", inUse: true},
 		negative: button{value: nativeAlert.NSAlertFirstButtonReturn + 1},
 		neutral:  button{value: nativeAlert.NSAlertFirstButtonReturn + 2},
 	}

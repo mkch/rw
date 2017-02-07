@@ -3,6 +3,7 @@ package window_test
 import (
 	"fmt"
 	"github.com/mkch/rw"
+	"github.com/mkch/rw/alert"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/window"
 	"image/color"
@@ -28,7 +29,7 @@ func NewWindow() *Window {
 }
 
 func startup(t *testing.T) {
-	rw.Alert("Hello", "Hello form rw.")
+	alert.Show("Hello")
 	var win rw.Window = NewWindow()
 	win.SetVisible(true)
 	if win.Enabled() != true {
