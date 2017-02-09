@@ -4,19 +4,15 @@ import (
 	"github.com/mkch/rw"
 )
 
-var itemtemHM = &rw.MenuItemHandleManager{}
-var separatorHM = &rw.MenuSeparatorHandleManager{}
 
-func newMenuItem(separator bool) rw.MenuItem {
-	item := AllocItem(separator)
+func NewItem() rw.MenuItem {
+	item := AllocItem(false)
 	rw.Init(item)
 	return item
 }
 
-func NewItem() rw.MenuItem {
-	return newMenuItem(false)
-}
-
 func NewSeparator() rw.MenuItem {
-	return newMenuItem(true)
+	item := AllocItem(true)
+	rw.Init(item)
+	return item
 }

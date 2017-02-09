@@ -6,13 +6,6 @@ import (
 	"github.com/mkch/rw/event"
 )
 
-// HandleManager is the handle manager of Button.
-type HandleManager struct {
-	rw.ControlHandleManagerBase
-}
-
-var hm = &HandleManager{}
-
 type Button interface {
 	rw.Control
 	SetTitle(string)

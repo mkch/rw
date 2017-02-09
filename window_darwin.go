@@ -3,7 +3,6 @@ package rw
 import (
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/darwin/app"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
 	"github.com/mkch/rw/internal/native/darwin/notification"
 	"github.com/mkch/rw/internal/native/darwin/object"
@@ -11,8 +10,6 @@ import (
 	nativeUtil "github.com/mkch/rw/internal/native/darwin/util"
 	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/internal/native/darwin/window"
-	"github.com/mkch/rw/internal/native/darwin/windowstyle"
-	s "github.com/mkch/rw/internal/windowstyle"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 	"unsafe"
@@ -260,26 +257,11 @@ func (w *windowBase) CloseModal(result interface{}) {
 	w.endDialog(result)
 }
 
-func newWindowTemplate() Window {
+func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
 	w := &windowBase{}
-	w.Wrapper().AfterRegistered().AddHook(w.afterRegistered)
+	w.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
+	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w
 }
 
-type WindowHandleManager struct {
-	objcHandleManagerBase
-}
 
-func (m *WindowHandleManager) Create(util.Bundle) native.Handle {
-	style := windowstyle.WindowStyle(&s.WindowStyleFeatures{
-		HasBorder:         true,
-		HasTitle:          true,
-		HasCloseButton:    true,
-		HasMinimizeButton: true,
-		HasMaximizeButton: true,
-		Resizable:         true,
-	})
-	w := window.NewRWWindow(0, 0, 300, 200, style)
-	window.NSWindow_center(w)
-	return deallochook.Apply(w)
-}

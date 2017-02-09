@@ -1,18 +1,28 @@
 package menu
 
 import (
+"github.com/mkch/rw/native"
 	"github.com/mkch/rw"
 	"github.com/mkch/rw/util"
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/internal/native/darwin/menu"
 )
 
+
+func createMenuItem(util.Bundle) native.Handle {
+	return deallochook.Apply(menu.NewMenuItem())
+}
+
+func createSeparator(util.Bundle) native.Handle {
+	return deallochook.Apply(menu.NewSeparatorMenuItem())
+}
+
 func AllocItem(separator bool) rw.MenuItem {
-	item := rw.NewMenuItemTemplate(separator)
-	var mgr util.HandleManager
+	var f func(util.Bundle) native.Handle
 	if separator {
-		mgr = separatorHM
+		f = createSeparator
 	} else {
-		mgr = itemtemHM
+		f = createMenuItem
 	}
-	item.Wrapper().SetHandleManager(mgr)
-	return item
+	return rw.AllocMenuItem(f)
 }

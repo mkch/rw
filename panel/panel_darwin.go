@@ -7,7 +7,7 @@ import (
 	"github.com/mkch/rw/util"
 )
 
-func (m *HandleManager) Create(util.Bundle) native.Handle {
+func createPanel(util.Bundle) native.Handle {
 	h := deallochook.Apply(view.NSView_initWithFrame(view.RWFlippedView_alloc(), 0, 0, 0, 0))
 	view.RWFlippedView_setAcceptFirstResponder(h, true)
 	return h

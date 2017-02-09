@@ -2,6 +2,7 @@ package rw
 
 import (
 	"fmt"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/util"
 )
@@ -92,10 +93,11 @@ func (item *menuItemBase) String() string {
 	}
 }
 
-// NewMenuTemplate creates a template of Menu.
-// Use NewMenu function in package rw/menu to create objects of Menu.
-func NewMenuTemplate() Menu {
-	return &menuBase{}
+func AllocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocMenu(createHandleFunc)
 }
 
 type ModifierKey uint
@@ -158,8 +160,9 @@ func (item *menuItemBase) Wrapper() util.Wrapper {
 	return &item.wrapper
 }
 
-// NewMenuItemTempate creates a template of MenuItem.
-// Use NewItem function in package rw/menu to create objects of MenuItem.
-func NewMenuItemTemplate(separator bool) MenuItem {
-	return newMenuItemTemplate(separator)
+func AllocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocMenuItem(createHandleFunc)
 }

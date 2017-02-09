@@ -2,7 +2,6 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/dynamicinvocation"
 	"github.com/mkch/rw/internal/native/darwin/menu"
 	"github.com/mkch/rw/internal/native/darwin/object"
@@ -189,23 +188,8 @@ func (item *menuItemBase) SetMnemonic(k rune) {
 	// Do nothing.
 }
 
-func newMenuItemTemplate(separator bool) MenuItem {
+func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
 	item := &menuItemBase{}
+	item.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
 	return item
-}
-
-type MenuItemHandleManager struct {
-	objcHandleManagerBase
-}
-
-func (h *MenuItemHandleManager) Create(util.Bundle) native.Handle {
-	return deallochook.Apply(menu.NewMenuItem())
-}
-
-type MenuSeparatorHandleManager struct {
-	objcHandleManagerBase
-}
-
-func (h *MenuSeparatorHandleManager) Create(util.Bundle) native.Handle {
-	return deallochook.Apply(menu.NewSeparatorMenuItem())
 }

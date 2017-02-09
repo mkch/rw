@@ -2,6 +2,7 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/util"
 	"github.com/mkch/rw/internal/native/darwin/object"
 	"github.com/mkch/rw/internal/native/darwin/view"
 
@@ -104,6 +105,8 @@ func recalculateTabOrder(c Container, _head native.Handle, _tails []Control) (he
 	return
 }
 
-func newContainerTemplate() Container {
-	return &containerBase{}
+func allocContainer(createHandleFunc func(util.Bundle) native.Handle) Container {
+	c := &containerBase{}
+	c.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
+	return c
 }

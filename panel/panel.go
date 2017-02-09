@@ -4,12 +4,6 @@ import (
 	"github.com/mkch/rw"
 )
 
-type HandleManager struct {
-	rw.ControlHandleManagerBase
-}
-
-var panelHM = &HandleManager{}
-
 func New() rw.Container {
 	p := Alloc()
 	rw.Init(p)
@@ -17,7 +11,6 @@ func New() rw.Container {
 }
 
 func Alloc() rw.Container {
-	p := rw.NewContainerTemplate()
-	p.Wrapper().SetHandleManager(panelHM)
+	p := rw.AllocContainer(createPanel)
 	return p
 }

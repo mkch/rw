@@ -2,7 +2,6 @@ package rw
 
 import (
 	"github.com/mkch/rw/internal/native/darwin/app"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/menu"
 	"github.com/mkch/rw/internal/native/darwin/object"
 	"github.com/mkch/rw/native"
@@ -100,15 +99,9 @@ func (m *menuBase) Opener() MenuItem {
 	return m.opener
 }
 
-type MenuHandleManager struct {
-	objcHandleManagerBase
+func allocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
+	m := &menuBase{}
+	m.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
+	return m
 }
 
-func (h MenuHandleManager) Create(util.Bundle) native.Handle {
-	// https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ApplicationKit/Classes/NSMenuItem_Class/#//apple_ref/occ/instp/NSMenuItem/enabled
-	// NSMenu.enabled
-	// "This property has no effect unless the menu in which the item will be added or is already a part of has been sent setAutoenablesItems:NO"
-	handle := menu.NewMenu()
-	menu.NSMenu_setAutoenablesItems(handle, false)
-	return deallochook.Apply(handle)
-}

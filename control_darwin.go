@@ -1,6 +1,7 @@
 package rw
 
 import (
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/internal/native/darwin/window"
 
@@ -86,9 +87,9 @@ func (c *controlBase) Frame() Rect {
 	return Rect{X: x, Y: y, Width: w, Height: h}
 }
 
-func newControlTemplate() Control {
-	return &controlBase{tabStop: true}
+func allocControl(createHandleFunc func(util.Bundle) native.Handle) Control {
+	ctrl := &controlBase{tabStop: true}
+	ctrl.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
+	return ctrl
 }
 
-// ControlHandleManagerBase is the building block of HandleManager of concrete Control types.
-type ControlHandleManagerBase struct{ objcHandleManagerBase }

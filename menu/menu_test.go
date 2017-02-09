@@ -141,6 +141,6 @@ func itemOpTest(t *testing.T, win rw.Window) rw.Menu {
 			End().
 			Build()
 
-	win.SetMenu(m)
+	setMenu(win, m)
 	return m
 }

@@ -21,18 +21,23 @@ func (w *objcBase) Release() {
 	util.Release(w)
 }
 
-// objcHandleManagerBase is the common building block of all concrete HandleManagers.
-// Create method should be added to make a HandleManager.
-type objcHandleManagerBase struct{}
+// objcHandleManager is the common building block of all concrete HandleManagers.
+// Create method calls objcHandleManager itself.
+// Converting a `func(util.Bundle) native.Handle` to objcHandleManager makes a useable objcHandleManager.
+type objcHandleManager func(util.Bundle) native.Handle
 
-func (m objcHandleManagerBase) Destroy(handle native.Handle) {
+func (m objcHandleManager) Create(b util.Bundle) native.Handle {
+	return m(b)
+}
+
+func (m objcHandleManager) Destroy(handle native.Handle) {
 	object.NSObject_release(handle)
 }
 
-func (m objcHandleManagerBase) Valid(handle native.Handle) bool {
+func (m objcHandleManager) Valid(handle native.Handle) bool {
 	return handle != 0
 }
 
-func (m objcHandleManagerBase) Table() util.ObjectTable {
+func (m objcHandleManager) Table() util.ObjectTable {
 	return defaultObjectTable
 }

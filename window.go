@@ -2,6 +2,7 @@ package rw
 
 import (
 	"fmt"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/util"
 )
@@ -76,8 +77,9 @@ func (w *windowBase) String() string {
 	}
 }
 
-// NewWindowTemplate creates a template of Window.
-// Use corresponding NewXxx functions(NewWindow in package rw/Window for example) to create objects of concrete Window.
-func NewWindowTemplate() Window {
-	return newWindowTemplate()
+func AllocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocWindow(createHandleFunc)
 }

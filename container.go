@@ -3,6 +3,8 @@ package rw
 import (
 	"fmt"
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 	"image/color"
 )
 
@@ -94,8 +96,9 @@ func (c *containerBase) Remove(childToRemove Control) {
 	}
 }
 
-// NewContainerTemplate creates a template of Container.
-// Use corresponding NewXxx functions(NewPanel in package rw/panel for example) to create objects of concrete Container.
-func NewContainerTemplate() Container {
-	return newContainerTemplate()
+func AllocContainer(createHandleFunc func(util.Bundle) native.Handle) Container {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocContainer(createHandleFunc)
 }

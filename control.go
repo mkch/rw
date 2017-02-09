@@ -2,6 +2,7 @@ package rw
 
 import (
 	"fmt"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 )
 
@@ -82,8 +83,9 @@ func (a controlsByTabOrderAsc) Less(i, j int) bool {
 	return a[i].TabOrder() < a[j].TabOrder()
 }
 
-// NewControlTemplate creates a template of Control.
-// Use corresponding NewXxx functions(NewButton in package rw/button for example) to create objects of concrete Control.
-func NewControlTemplate() Control {
-	return newControlTemplate()
+func AllocControl(createHandleFunc func(util.Bundle) native.Handle) Control {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocControl(createHandleFunc)
 }

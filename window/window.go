@@ -4,8 +4,6 @@ import (
 	"github.com/mkch/rw"
 )
 
-var hm = &rw.WindowHandleManager{}
-
 // New creates a window.
 func New() rw.Window {
 	w := Alloc()
@@ -15,7 +13,6 @@ func New() rw.Window {
 
 // Alloc creates an uninitialized window.
 func Alloc() rw.Window {
-	w := rw.NewWindowTemplate()
-	w.Wrapper().SetHandleManager(hm)
+	w := rw.AllocWindow(createWindow)
 	return w
 }

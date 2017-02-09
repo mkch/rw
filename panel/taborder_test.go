@@ -95,7 +95,6 @@ func startup(t *testing.T) {
 		End().
 		Build()
 
-	win.SetMenu(m)
-	rw.SetMainMenu(m)
+	setMenu(win, m)
 	win.ShowActive()
 }

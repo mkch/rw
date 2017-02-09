@@ -13,7 +13,7 @@ import (
 	"github.com/mkch/rw/util"
 )
 
-func (m *HandleManager) Create(b util.Bundle) native.Handle {
+func createButton(b util.Bundle) native.Handle {
 	return deallochook.Apply(button.NewButton(0, 0, 100, 60))
 }
 
@@ -69,7 +69,6 @@ func New() Button {
 }
 
 func Alloc() Button {
-	b := &buttonImpl{Control: rw.NewControlTemplate()}
-	b.Wrapper().SetHandleManager(hm)
+	b := &buttonImpl{Control: rw.AllocControl(createButton)}
 	return b
 }
