@@ -1,9 +1,9 @@
 package rw
 
 import (
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/internal/native/darwin/view"
 	"github.com/mkch/rw/internal/native/darwin/window"
+	"github.com/mkch/rw/native"
 
 	"github.com/mkch/rw/util"
 )
@@ -92,4 +92,3 @@ func allocControl(createHandleFunc func(util.Bundle) native.Handle) Control {
 	ctrl.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
 	return ctrl
 }
-

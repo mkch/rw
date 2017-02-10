@@ -261,6 +261,10 @@ func (a *alertData) Show(parent rw.Window) {
 			a.t |= messagebox.MB_DEFBUTTON3
 
 		}
+	} else if code0 == 0 && code1 == 0 && code2 == 0 {
+		a.buttons[0].code = messagebox.IDOK
+		code0 = messagebox.IDOK
+		a.t |= messagebox.MB_OK
 	} else {
 		badButtons()
 	}

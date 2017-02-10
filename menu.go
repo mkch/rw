@@ -2,8 +2,8 @@ package rw
 
 import (
 	"fmt"
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 )
 
@@ -165,4 +165,11 @@ func AllocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
 		panic("nil pointer")
 	}
 	return allocMenuItem(createHandleFunc)
+}
+
+func AllocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocSeparatorMenuItem(createHandleFunc)
 }

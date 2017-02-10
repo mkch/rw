@@ -1,27 +1,28 @@
-package panel
+package window
 
 import (
 	"github.com/mkch/rw/internal/native/windows/window"
-	"github.com/mkch/rw/internal/native/windows/window/winutil"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 	"github.com/mkch/rw/util/ustr"
 	"unsafe"
 )
 
-var clsName unsafe.Pointer
+var windowClsName unsafe.Pointer
 
-func createPanel(util.Bundle) native.Handle {
+func createWindow(util.Bundle) native.Handle {
 	moduleHandle := window.GetModuleHandle(nil)
-	if clsName == nil {
-		clsName = ustr.CStringUtf16("rw.Panel")
+	if windowClsName == nil {
+		windowClsName = ustr.CStringUtf16("rw.Window")
 		window.RegisterClassEx(&window.WndClassEx{
 			WndProc:    window.DefWindowProcPtr(),
 			Instance:   moduleHandle,
 			Cursor:     window.LoadCursor(0, window.IDC_ARROW),
 			Background: native.Handle(window.COLOR_WINDOW),
-			ClassName:  clsName,
+			ClassName:  windowClsName,
 		})
 	}
-	return window.CreateWindowEx(window.WS_EX_CONTROLPARENT, uintptr(clsName), "", window.WS_CHILD|window.WS_TABSTOP|window.WS_VISIBLE, 0, 0, 100, 200, winutil.DockerWindow(), 0, moduleHandle, nil)
+	return window.CreateWindowEx(0, uintptr(windowClsName), "Window", window.WS_OVERLAPPEDWINDOW,
+		window.CW_USEDEFAULT, window.CW_USEDEFAULT, 300, 200,
+		0, 0, moduleHandle, nil)
 }

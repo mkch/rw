@@ -26,3 +26,9 @@ func (b *buttonImpl) String() string {
 		return "Button <Invalid>"
 	}
 }
+
+func New() Button {
+	b := Alloc()
+	rw.Init(b)
+	return b
+}

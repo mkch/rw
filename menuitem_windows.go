@@ -280,52 +280,44 @@ func (item *menuItemBase) Release() {
 		if item.menu != nil && item.menu.Wrapper().Valid() {
 			item.menu.RemoveItem(item.Self().(MenuItem))
 		}
-		util.Release(item)
 		if item.submenu != nil {
 			item.submenu.Release()
 		}
+		util.Release(item)
 	}
 }
 
-func newMenuItemTemplate(separator bool) MenuItem {
+type menuItemHandleManager func(util.Bundle) native.Handle
+
+func (h menuItemHandleManager) Destroy(handle native.Handle) {
+	menuItemTable.Remove(handle)
+}
+
+func (h menuItemHandleManager) Valid(handle native.Handle) bool {
+	return handle != 0
+}
+
+func (h menuItemHandleManager) Table() util.ObjectTable {
+	return menuItemTable
+}
+
+func (h menuItemHandleManager) Create(b util.Bundle) native.Handle {
+	return h(b)
+}
+
+func allocMenuItemImp(createHandleFunc func(util.Bundle) native.Handle, sep bool) MenuItem {
 	item := &menuItemBase{}
-	item.sep = separator
+	item.wrapper.SetHandleManager(menuItemHandleManager(createHandleFunc))
+	item.sep = sep
 	item.visible = true
 	item.enabled = true
 	return item
 }
 
-type MenuItemHandleManager struct {
-	Windows_Id native.Handle
+func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	return allocMenuItemImp(createHandleFunc, false)
 }
 
-func (h *MenuItemHandleManager) Destroy(handle native.Handle) {
-	menuItemTable.Remove(handle)
-}
-
-func (h *MenuItemHandleManager) Valid(handle native.Handle) bool {
-	return handle != 0
-}
-
-func (h *MenuItemHandleManager) Table() util.ObjectTable {
-	return menuItemTable
-}
-
-func (h *MenuItemHandleManager) Create(util.Bundle) native.Handle {
-	return h.Windows_Id
-}
-
-func Windows_NextMenuItemHandle(m *MenuItemHandleManager) native.Handle {
-	// Begins from 100 to skip system IDs, IDOK=1, IDCANCEL=2... IDCONTINUE=11, etc.
-	// https://msdn.microsoft.com/en-us/library/windows/desktop/ms645505(v=vs.85).aspx
-	for h := native.Handle(100); h <= 0xFFFF; h++ {
-		if m.Table().Query(h) == nil {
-			return h
-		}
-	}
-	panic("Run out of menu item id")
-}
-
-type MenuSeparatorHandleManager struct {
-	MenuItemHandleManager
+func allocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	return allocMenuItemImp(createHandleFunc, true)
 }

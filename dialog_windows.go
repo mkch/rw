@@ -14,7 +14,7 @@ func (dlg *windowBase) CloseModal(result interface{}) {
 }
 
 type dialogHandleManager struct {
-	hwndManagerBase
+	hwndManager
 	handle native.Handle
 }
 

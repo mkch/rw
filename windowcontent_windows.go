@@ -9,13 +9,9 @@ import (
 	"unsafe"
 )
 
-type winContentHandleManager struct {
-	hwndManagerBase
-}
-
 var winContentClsName unsafe.Pointer
 
-func (m winContentHandleManager) Create(util.Bundle) native.Handle {
+func createWindowContent(util.Bundle) native.Handle {
 	moduleHandle := window.GetModuleHandle(nil)
 	if winContentClsName == nil {
 		winContentClsName = ustr.CStringUtf16("rw.WindowContent")
@@ -30,15 +26,12 @@ func (m winContentHandleManager) Create(util.Bundle) native.Handle {
 	return window.CreateWindowEx(window.WS_EX_CONTROLPARENT, uintptr(winContentClsName), "", window.WS_CHILD|window.WS_VISIBLE, 0, 0, 100, 200, winutil.DockerWindow(), 0, moduleHandle, nil)
 }
 
-var winContentHM = winContentHandleManager{}
-
 type winContent struct {
 	Container
 }
 
 func newWindowContent() Container {
-	c := &winContent{NewContainerTemplate()}
-	c.Wrapper().SetHandleManager(winContentHM)
+	c := &winContent{allocContainer(hwndManager(createWindowContent))}
 	Init(c)
 	return c
 }

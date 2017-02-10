@@ -8,6 +8,7 @@ import (
 	"github.com/mkch/rw/internal/native/windows/window/winutil"
 
 	"github.com/mkch/rw/native"
+	"github.com/mkch/rw/util"
 	"image/color"
 	"sort"
 )
@@ -148,8 +149,9 @@ func nativeRemoveFromParent(child native.Handle) {
 	window.SetParent(child, winutil.DockerWindow())
 }
 
-func newContainerTemplate() Container {
+func allocContainer(createHandleFunc func(util.Bundle) native.Handle) Container {
 	c := &containerBase{}
 	initControlBase(&c.controlBase)
+	c.wrapper.SetHandleManager(hwndManager(createHandleFunc))
 	return c
 }

@@ -62,12 +62,6 @@ func (b *buttonImpl) OnClick() *event.Hub {
 	return &b.onClick
 }
 
-func New() Button {
-	b := Alloc()
-	rw.Init(b)
-	return b
-}
-
 func Alloc() Button {
 	b := &buttonImpl{Control: rw.AllocControl(createButton)}
 	return b

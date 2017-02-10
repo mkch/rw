@@ -1,10 +1,10 @@
 package menu
 
-import(
+import (
+	"github.com/mkch/rw/internal/native/darwin/deallochook"
+	"github.com/mkch/rw/internal/native/darwin/menu"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/internal/native/darwin/menu"
-	"github.com/mkch/rw/internal/native/darwin/deallochook"
 )
 
 func createMenu(util.Bundle) native.Handle {

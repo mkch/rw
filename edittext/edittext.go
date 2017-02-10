@@ -6,13 +6,6 @@ import (
 	"github.com/mkch/rw/event"
 )
 
-// HandleManager is the handle manager of EditText.
-type HandleManager struct {
-	rw.ControlHandleManagerBase
-}
-
-var hm = &HandleManager{}
-
 // EditText is a Control where you can type text.
 type EditText interface {
 	rw.Control

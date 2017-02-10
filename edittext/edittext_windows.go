@@ -11,7 +11,7 @@ import (
 	"github.com/mkch/rw/util"
 )
 
-func (m *HandleManager) Create(b util.Bundle) native.Handle {
+func createEditText(b util.Bundle) native.Handle {
 	return window.CreateWindowEx(
 		/*exStyle uint*/ window.WS_EX_CLIENTEDGE,
 		/*className string*/ commcontrol.WC_EDIT,
@@ -58,8 +58,7 @@ func (edt *editTextImpl) Windows_ReflectedWndProc(handle native.Handle, msg uint
 }
 
 func Alloc() EditText {
-	edt := &editTextImpl{Control: rw.NewControlTemplate()}
-	edt.Wrapper().SetHandleManager(hm)
+	edt := &editTextImpl{Control: rw.AllocControl(createEditText)}
 	return edt
 }
 

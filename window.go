@@ -2,8 +2,8 @@ package rw
 
 import (
 	"fmt"
-	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/event"
+	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 )
 

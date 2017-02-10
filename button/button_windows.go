@@ -13,7 +13,7 @@ import (
 
 var clsName unsafe.Pointer
 
-func (m *HandleManager) Create(b util.Bundle) native.Handle {
+func createButton(b util.Bundle) native.Handle {
 	if clsName == nil {
 		clsName = ustr.CStringUtf16("BUTTON")
 	}
@@ -71,14 +71,7 @@ func (b *buttonImpl) Windows_ReflectedWndProc(handle native.Handle, msg uint, wP
 	return b.Control.Windows_ReflectedWndProc(handle, msg, wParam, lParam)
 }
 
-func New() Button {
-	b := Alloc()
-	rw.Init(b)
-	return b
-}
-
 func Alloc() Button {
-	b := &buttonImpl{Control: rw.NewControlTemplate()}
-	b.Wrapper().SetHandleManager(hm)
+	b := &buttonImpl{Control: rw.AllocControl(createButton)}
 	return b
 }

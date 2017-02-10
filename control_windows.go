@@ -118,11 +118,9 @@ func initControlBase(c *controlBase) *controlBase {
 	return c
 }
 
-func newControlTemplate() Control {
-	return initControlBase(&controlBase{})
-}
-
-// ControlHandleManagerBase is the building block of HandleManager of concrete Control types.
-type ControlHandleManagerBase struct {
-	hwndManagerBase
+func allocControl(createHandleFunc func(util.Bundle) native.Handle) Control {
+	c := &controlBase{}
+	initControlBase(c)
+	c.wrapper.SetHandleManager(hwndManager(createHandleFunc))
+	return c
 }

@@ -104,4 +104,3 @@ func allocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
 	m.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
 	return m
 }
-

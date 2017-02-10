@@ -57,6 +57,9 @@ func (m *menuBase) rootWindow() Window {
 			return win
 		} else if opener := mm.Opener(); opener != nil {
 			mm = opener.Menu()
+			if mm == nil {
+				return nil
+			}
 		} else {
 			return nil
 		}
@@ -209,13 +212,12 @@ func (m *menuBase) Release() {
 		if m.window != nil {
 			m.window.SetMenu(nil)
 		}
+		// MenuItem.Release() calls Menu.RemoveItem(), which modifies m.items.
+		items := make([]MenuItem, len(m.items))
+		copy(items, m.items)
 		// Release all items.
-		for _, item := range m.items {
-			// Release submenus recursively.
-			if submenu := item.Submenu(); submenu != nil {
-				submenu.Release()
-			}
-			// Release the item itself.
+		for _, item := range items {
+			// Release the item itself, and it's submenu.
 			item.Release()
 		}
 		// Release menu itself.
@@ -223,22 +225,27 @@ func (m *menuBase) Release() {
 	}
 }
 
-type MenuHandleManager struct{}
+type menuHandleManager func(util.Bundle) native.Handle
 
-func (h MenuHandleManager) Destroy(handle native.Handle) {
+func (h menuHandleManager) Destroy(handle native.Handle) {
 	menu.DestroyMenu(handle)
 	menuTable.Remove(handle)
 }
 
-func (h MenuHandleManager) Valid(handle native.Handle) bool {
+func (h menuHandleManager) Valid(handle native.Handle) bool {
 	return handle != 0
 }
 
-func (h MenuHandleManager) Table() util.ObjectTable {
+func (h menuHandleManager) Table() util.ObjectTable {
 	return menuTable
 }
 
-func (h MenuHandleManager) Create(util.Bundle) native.Handle {
-	handle := menu.CreateMenu()
-	return handle
+func (h menuHandleManager) Create(b util.Bundle) native.Handle {
+	return h(b)
+}
+
+func allocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
+	m := &menuBase{}
+	m.wrapper.SetHandleManager(menuHandleManager(createHandleFunc))
+	return m
 }

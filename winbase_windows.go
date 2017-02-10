@@ -44,18 +44,23 @@ type Windows_WindowMessageReceiver interface {
 	Windows_PreTranslateMessage(msg window.PMsg) bool
 }
 
-// hwndManagerBase is the common building block of HandleManager of HWND.
-// Create method should be added to make a HandleManager.
-type hwndManagerBase struct{}
+// hwndManager is the common building block of all concrete HandleManagers for HWND.
+// Create method calls hwndManager itself.
+// Converting a `func(util.Bundle) native.Handle` to hwndManager makes a useable hwndManager.
+type hwndManager func(util.Bundle) native.Handle
 
-func (m hwndManagerBase) Destroy(handle native.Handle) {
+func (m hwndManager) Create(b util.Bundle) native.Handle {
+	return m(b)
+}
+
+func (m hwndManager) Destroy(handle native.Handle) {
 	window.DestroyWindow(handle)
 }
 
-func (m hwndManagerBase) Valid(handle native.Handle) bool {
+func (m hwndManager) Valid(handle native.Handle) bool {
 	return handle != 0
 }
 
-func (m hwndManagerBase) Table() util.ObjectTable {
+func (m hwndManager) Table() util.ObjectTable {
 	return defaultObjectTable
 }

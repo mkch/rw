@@ -1,15 +1,12 @@
 package rw
 
 import (
-	"fmt"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/acceltable"
 	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/internal/native/windows/window/winutil"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
-	"github.com/mkch/rw/util/ustr"
-	"unsafe"
 )
 
 type WindowPlatformSpecific Windows_WindowMessageReceiver
@@ -137,11 +134,9 @@ func (w *windowBase) Windows_WndProc(handle native.Handle, msg uint, wParam, lPa
 				w.onClose.Send(&simpleEvent{sender: w.Self()})
 			}
 		}
-		fmt.Printf("*hwnd=0X%X menu=%v\n", handle, w.menu)
 		if w.menu != nil {
 			winMenu := w.menu
 			w.SetMenu(nil)
-			fmt.Printf("*hwnd=0X%X destroy menu %v\n", handle, winMenu)
 			winMenu.Release()
 		}
 		w.accel.Destroy()
@@ -212,31 +207,9 @@ func (w *windowBase) SetContent(content Container) {
 	}
 }
 
-type WindowHandleManager struct {
-	hwndManagerBase
-}
-
-var windowClsName unsafe.Pointer
-
-func (m WindowHandleManager) Create(util.Bundle) native.Handle {
-	moduleHandle := window.GetModuleHandle(nil)
-	if windowClsName == nil {
-		windowClsName = ustr.CStringUtf16("rw.Window")
-		window.RegisterClassEx(&window.WndClassEx{
-			WndProc:    window.DefWindowProcPtr(),
-			Instance:   moduleHandle,
-			Cursor:     window.LoadCursor(0, window.IDC_ARROW),
-			Background: native.Handle(window.COLOR_WINDOW),
-			ClassName:  windowClsName,
-		})
-	}
-	return window.CreateWindowEx(0, uintptr(windowClsName), "Window", window.WS_OVERLAPPEDWINDOW,
-		window.CW_USEDEFAULT, window.CW_USEDEFAULT, 300, 200,
-		0, 0, moduleHandle, nil)
-}
-
-func newWindowTemplate() Window {
+func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
 	w := &windowBase{}
-	w.Wrapper().AfterRegistered().AddHook(w.afterRegistered)
+	w.wrapper.SetHandleManager(hwndManager(createHandleFunc))
+	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w
 }

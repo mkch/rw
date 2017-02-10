@@ -193,3 +193,7 @@ func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
 	item.wrapper.SetHandleManager(objcHandleManager(createHandleFunc))
 	return item
 }
+
+func allocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	return allocMenuItem(createHandleFunc)
+}

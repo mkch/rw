@@ -263,5 +263,3 @@ func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
 	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w
 }
-
-

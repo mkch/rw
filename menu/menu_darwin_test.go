@@ -1,8 +1,7 @@
-package panel_test
+package menu_test
 
 import (
 	"github.com/mkch/rw"
-
 )
 
 func setMenu(w rw.Window, m rw.Menu) {

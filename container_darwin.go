@@ -2,9 +2,9 @@ package rw
 
 import (
 	"github.com/mkch/rw/event"
-	"github.com/mkch/rw/util"
 	"github.com/mkch/rw/internal/native/darwin/object"
 	"github.com/mkch/rw/internal/native/darwin/view"
+	"github.com/mkch/rw/util"
 
 	"github.com/mkch/rw/native"
 	"image/color"

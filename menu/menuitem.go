@@ -4,15 +4,14 @@ import (
 	"github.com/mkch/rw"
 )
 
-
 func NewItem() rw.MenuItem {
-	item := AllocItem(false)
+	item := AllocItem()
 	rw.Init(item)
 	return item
 }
 
 func NewSeparator() rw.MenuItem {
-	item := AllocItem(true)
+	item := AllocSeparatorItem()
 	rw.Init(item)
 	return item
 }
