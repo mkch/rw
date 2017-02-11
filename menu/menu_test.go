@@ -26,13 +26,28 @@ func (b byItemTitle) Len() int {
 }
 
 func (b byItemTitle) Swap(i, j int) {
+	var lower, upper int
+	if i > j {
+		lower, upper = j, i
+	} else if i < j {
+		lower, upper = i, j
+	} else {
+		return
+	}
 	m := b.Menu
-	itemI := m.Item(i)
-	itemJ := m.Item(j)
-	m.RemoveItem(itemI)
-	m.RemoveItem(itemJ)
-	m.InsertItem(itemI, j)
-	m.InsertItem(itemJ, i)
+	itemLower := m.Item(lower)
+	itemUpper := m.Item(upper)
+	m.RemoveItem(itemLower)
+	m.RemoveItem(itemUpper)
+	// Insert the (swapped) lower item first to maintain the right insertion positions.
+	// e.g. For i == 2, j == 5,
+	//   insert(item5, 2) // item5 at index 2
+	//   insert(item2, 5) // item5 at index 2(unaffected), and item2 at index 5
+	// but,
+	//   insert(item2, 5) // item2 at index 5
+	//   insert(item5, 2) // item5 at index 2, item2 at index 6(affected!)
+	m.InsertItem(itemUpper, lower)
+	m.InsertItem(itemLower, upper)
 }
 
 func (b byItemTitle) Less(i, j int) bool {
