@@ -39,7 +39,6 @@ type Wrapper interface {
 	// Valid returns whether a valid native object is wrapped.
 	Valid() bool
 	HandleManager() HandleManager
-	SetHandleManager(m HandleManager)
 	// The type of event is *WrapperEvent.
 	AfterRegistered() *event.HookChain
 	// The type of event is *WrapperEvent.

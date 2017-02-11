@@ -13,15 +13,6 @@ func (dlg *windowBase) CloseModal(result interface{}) {
 	dialog.EndDialog(dlg.Wrapper().Handle(), 0)
 }
 
-type dialogHandleManager struct {
-	hwndManager
-	handle native.Handle
-}
-
-func (m *dialogHandleManager) Create(util.Bundle) native.Handle {
-	return m.handle
-}
-
 func dlgMsgFilterProc(msg window.PMsg) bool {
 	if receiver, ok := defaultObjectTable.Query(msg.Hwnd()).(Windows_WindowMessageReceiver); ok {
 		return receiver.Windows_PreTranslateMessage(msg)
@@ -40,8 +31,7 @@ func dialogProc(handle native.Handle, msg uint, wParam, lParam uintptr) bool {
 		frame := dlg.Frame()
 		// To release the old content.
 		dlg.SetContent(nil)
-		dlg.Wrapper().SetHandleManager(&dialogHandleManager{handle: handle})
-		util.Recreate(dlg, nil)
+		util.Recreate(dlg, util.Bundle{"rw:dlg-handle": handle})
 		dlg.SetTitle(title)
 		dlg.SetFrame(frame)
 		dlg.SetMenu(menu)

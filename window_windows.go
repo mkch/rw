@@ -207,9 +207,22 @@ func (w *windowBase) SetContent(content Container) {
 	}
 }
 
+type windowHandleManager struct {
+	hwndManager
+}
+
+func (m windowHandleManager) Create(b util.Bundle) native.Handle {
+	if b != nil {
+		if handle, ok := b["rw:dlg-handle"].(native.Handle); ok && m.Valid(handle) {
+			return handle
+		}
+	}
+	return m.hwndManager.Create(b)
+}
+
 func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
 	w := &windowBase{}
-	w.wrapper.SetHandleManager(hwndManager(createHandleFunc))
+	w.wrapper.SetHandleManager(windowHandleManager{hwndManager(createHandleFunc)})
 	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w
 }
