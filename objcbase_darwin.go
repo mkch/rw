@@ -35,7 +35,11 @@ func (m objcHandleManager) Destroy(handle native.Handle) {
 }
 
 func (m objcHandleManager) Valid(handle native.Handle) bool {
-	return handle != 0
+	return handle != m.Invalid()
+}
+
+func (m objcHandleManager) Invalid() native.Handle {
+	return 0
 }
 
 func (m objcHandleManager) Table() util.ObjectTable {

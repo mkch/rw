@@ -45,8 +45,7 @@ func (table *objectTable) Remove(handle native.Handle) {
 		return
 	} else {
 		delete(table.m, handle)
-		// TODO: gett invalid handle form HandleManager
-		obj.Wrapper().setHandle(0)
+		obj.Wrapper().setHandle(obj.Wrapper().HandleManager().Invalid())
 		afterDestroyed := obj.Wrapper().AfterDestroyed()
 		if afterDestroyed.HasCallback() {
 			afterDestroyed.Call(&WrapperEvent{sender: obj, recreating: obj.Wrapper().Recreating()})

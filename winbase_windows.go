@@ -58,7 +58,11 @@ func (m hwndManager) Destroy(handle native.Handle) {
 }
 
 func (m hwndManager) Valid(handle native.Handle) bool {
-	return handle != 0
+	return handle != m.Invalid()
+}
+
+func (m hwndManager) Invalid() native.Handle {
+	return 0
 }
 
 func (m hwndManager) Table() util.ObjectTable {

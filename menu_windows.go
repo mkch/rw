@@ -265,7 +265,11 @@ func (h menuHandleManager) Destroy(handle native.Handle) {
 }
 
 func (h menuHandleManager) Valid(handle native.Handle) bool {
-	return handle != 0
+	return handle != h.Invalid()
+}
+
+func (h menuHandleManager) Invalid() native.Handle {
+	return 0
 }
 
 func (h menuHandleManager) Table() util.ObjectTable {

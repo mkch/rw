@@ -13,7 +13,10 @@ type HandleManager interface {
 	// Destroy destroies a native object created by Create.
 	Destroy(handle native.Handle)
 	// Valid returns whether a valid native object is wrapped.
+	// This method can do more than `return  handle != Invalid()`, e.g. rang checking.
 	Valid(handle native.Handle) bool
+	// Invalid returns a invalid object.
+	Invalid() native.Handle
 	// Table returns the ObjectTable in which this object is.
 	Table() ObjectTable
 }
