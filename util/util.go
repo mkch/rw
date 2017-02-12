@@ -57,12 +57,16 @@ type Wrapper interface {
 	Recreating() bool
 	// setRecreating sets whether this object is being recreated.
 	setRecreating(r bool)
+	// recreateBundle returns the Bundle passed in Recreate.
+	recreateBundle() Bundle
+	setRecreateBundle(Bundle)
 }
 
 // WrapperImpl implements Wrapper interface.
 type WrapperImpl struct {
 	handle          native.Handle
 	isRecreating    bool
+	recreatArg      Bundle
 	hm              HandleManager
 	afterRegistered event.HookChain
 	afterDestroyed  event.HookChain
@@ -107,6 +111,13 @@ func (w *WrapperImpl) AfterDestroyed() *event.HookChain {
 	return &w.afterDestroyed
 }
 
+func (w *WrapperImpl) recreateBundle() Bundle {
+	return w.recreatArg
+}
+func (w *WrapperImpl) setRecreateBundle(b Bundle) {
+	w.recreatArg = b
+}
+
 type WrapperHolder interface {
 	Wrapper() Wrapper
 }
@@ -133,13 +144,12 @@ func register(w WrapperHolder, b Bundle) {
 	}
 }
 
-func destroy(w WrapperHolder, b Bundle) {
+func destroy(w WrapperHolder) {
 	wrapper := w.Wrapper()
 	wrapper.HandleManager().Destroy(wrapper.Handle())
-	afterDestroyed := wrapper.AfterDestroyed()
-	if afterDestroyed.HasCallback() {
-		afterDestroyed.Call(&WrapperEvent{sender: w, recreating: wrapper.Recreating(), bundle: b})
-	}
+	// Do not call wrapper.AfterDestroyed().Call() here.
+	// HandleManager().Destroy() should call ObjectTable.Remove(),
+	// where it is called.
 }
 
 // Recreate destroys the existing native object and create a new one.
@@ -149,14 +159,18 @@ func Recreate(w WrapperHolder, b Bundle) {
 	handleManager := wrapper.HandleManager()
 
 	wrapper.setRecreating(true)
-	defer wrapper.setRecreating(false)
-	destroy(w, b)
+	wrapper.setRecreateBundle(b)
+	defer func() {
+		wrapper.setRecreating(false)
+		wrapper.setRecreateBundle(nil)
+	}()
+	destroy(w)
 	wrapper.setHandle(handleManager.Create(b))
 	register(w, b)
 }
 
 func Release(w WrapperHolder) {
 	if w.Wrapper().Valid() {
-		destroy(w, nil)
+		destroy(w)
 	}
 }

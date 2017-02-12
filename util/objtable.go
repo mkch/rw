@@ -48,7 +48,7 @@ func (table *objectTable) Remove(handle native.Handle) {
 		obj.Wrapper().setHandle(obj.Wrapper().HandleManager().Invalid())
 		afterDestroyed := obj.Wrapper().AfterDestroyed()
 		if afterDestroyed.HasCallback() {
-			afterDestroyed.Call(&WrapperEvent{sender: obj, recreating: obj.Wrapper().Recreating()})
+			afterDestroyed.Call(&WrapperEvent{sender: obj, recreating: obj.Wrapper().Recreating(), bundle: obj.Wrapper().recreateBundle()})
 		}
 		obj.Wrapper().setHandle(0)
 	}
