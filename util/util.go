@@ -106,21 +106,31 @@ type WrapperHolder interface {
 // Init initializes a Wrapper.
 func Init(w WrapperHolder) {
 	w.Wrapper().setHandle(w.Wrapper().HandleManager().Create(nil))
-	register(w)
+	register(w, nil)
 }
 
 // InitWithHandle initializes a Wrapper with an existing handle.
 func InitWithHandle(w WrapperHolder, handle native.Handle) {
 	w.Wrapper().setHandle(handle)
-	register(w)
+	register(w, nil)
 }
 
 // register register Wrapper to it's WrapperTable
-func register(w WrapperHolder) {
-	w.Wrapper().HandleManager().Table().Register(w)
-	afterRegistered := w.Wrapper().AfterRegistered()
+func register(w WrapperHolder, b Bundle) {
+	wrapper := w.Wrapper()
+	wrapper.HandleManager().Table().Register(w)
+	afterRegistered := wrapper.AfterRegistered()
 	if afterRegistered.HasCallback() {
-		afterRegistered.Call(&WrapperEvent{sender: w, recreating: w.Wrapper().Recreating()})
+		afterRegistered.Call(&WrapperEvent{sender: w, recreating: wrapper.Recreating(), bundle: b})
+	}
+}
+
+func destroy(w WrapperHolder, b Bundle) {
+	wrapper := w.Wrapper()
+	wrapper.HandleManager().Destroy(wrapper.Handle())
+	afterDestroyed := wrapper.AfterDestroyed()
+	if afterDestroyed.HasCallback() {
+		afterDestroyed.Call(&WrapperEvent{sender: w, recreating: wrapper.Recreating(), bundle: b})
 	}
 }
 
@@ -132,13 +142,13 @@ func Recreate(w WrapperHolder, b Bundle) {
 
 	wrapper.setRecreating(true)
 	defer wrapper.setRecreating(false)
-	handleManager.Destroy(wrapper.Handle())
+	destroy(w, b)
 	wrapper.setHandle(handleManager.Create(b))
-	register(w)
+	register(w, b)
 }
 
 func Release(w WrapperHolder) {
 	if w.Wrapper().Valid() {
-		w.Wrapper().HandleManager().Destroy(w.Wrapper().Handle())
+		destroy(w, nil)
 	}
 }
