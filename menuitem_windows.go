@@ -59,7 +59,11 @@ func (item *menuItemBase) keyModifierString() string {
 }
 
 func (item *menuItemBase) displayTitle() string {
-	buf := bytes.NewBufferString(util.Windows_ControlTitleWithMnemonic(strings.Replace(item.title, "\t", "    ", -1), item.mnemonic))
+	buf := &bytes.Buffer{}
+	if Debug {
+		fmt.Fprintf(buf, "[0x%x] ", item.Wrapper().Handle())
+	}
+	buf.WriteString(util.Windows_ControlTitleWithMnemonic(strings.Replace(item.title, "\t", "    ", -1), item.mnemonic))
 	if mod := item.keyModifierString(); mod != "" {
 		buf.WriteRune('\t')
 		buf.WriteString(mod)
@@ -67,7 +71,7 @@ func (item *menuItemBase) displayTitle() string {
 			buf.WriteRune('+')
 			buf.WriteString(strings.ToUpper(string(item.accelKey)))
 		}
-	} else {
+	} else if item.accelKey != 0 {
 		buf.WriteRune('\t')
 		buf.WriteString(strings.ToUpper(string(item.accelKey)))
 	}
