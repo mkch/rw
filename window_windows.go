@@ -13,6 +13,7 @@ type WindowPlatformSpecific Windows_WindowMessageReceiver
 
 type windowExtra interface {
 	accelTable() *acceltable.AccelTable
+	menuItemTable() util.ObjectTable
 }
 
 type windowBase struct {
@@ -24,6 +25,11 @@ type windowBase struct {
 	accel        acceltable.AccelTable
 	prevWndProc  uintptr
 	onClose      event.Hub
+	menuItemTab  util.ObjectTable
+}
+
+func (w *windowBase) menuItemTable() util.ObjectTable {
+	return w.menuItemTab
 }
 
 func (w *windowBase) accelTable() *acceltable.AccelTable {
@@ -89,14 +95,15 @@ func (w *windowBase) SetMenu(menu Menu) {
 		w.menu.removeAccelerators(w)
 		w.menu.setWindow(nil)
 	}
+	handle := w.Wrapper().Handle()
 	if menu != nil {
 		menu.setWindow(w.Self().(Window))
-		window.SetMenu(w.Wrapper().Handle(), menu.Wrapper().Handle())
+		window.SetMenu(handle, menu.Wrapper().Handle())
 		menu.addAccelerators(w)
 	} else {
-		window.SetMenu(w.Wrapper().Handle(), 0)
+		window.SetMenu(handle, 0)
 	}
-	window.DrawMenuBar(w.Wrapper().Handle())
+	window.DrawMenuBar(handle)
 	w.menu = menu
 }
 
@@ -154,17 +161,17 @@ func (w *windowBase) Windows_WndProc(handle native.Handle, msg uint, wParam, lPa
 			h, l := window.HIWORD(uint(wParam)), window.LOWORD(uint(wParam))
 			switch h {
 			case 0: // Menu, l is menu id
-				handleMenuCommand(native.Handle(l))
+				w.handleMenuCommand(native.Handle(l))
 			case 1: // Accelerator, l is accelerator id
-				handleMenuCommand(native.Handle(l))
+				w.handleMenuCommand(native.Handle(l))
 			}
 		}
 	}
 	return window.CallWindowProc(w.prevWndProc, handle, msg, wParam, lParam)
 }
 
-func handleMenuCommand(item native.Handle) {
-	if menuItem, ok := menuItemTable.Query(item).(MenuItem); ok && menuItem.OnClick().HasHandler() {
+func (w *windowBase) handleMenuCommand(item native.Handle) {
+	if menuItem, ok := w.menuItemTab.Query(item).(MenuItem); ok && menuItem.OnClick().HasHandler() {
 		menuItem.OnClick().Send(&simpleEvent{sender: menuItem})
 	}
 }
@@ -220,9 +227,13 @@ func (m windowHandleManager) Create(b util.Bundle) native.Handle {
 	return m.hwndManager.Create(b)
 }
 
-func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
-	w := &windowBase{}
+func initWindow(w *windowBase, createHandleFunc func(util.Bundle) native.Handle) *windowBase {
+	w.menuItemTab = util.NewObjectTable()
 	w.wrapper.SetHandleManager(windowHandleManager{hwndManager(createHandleFunc)})
 	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w
+}
+
+func allocWindow(createHandleFunc func(util.Bundle) native.Handle) Window {
+	return initWindow(&windowBase{}, createHandleFunc)
 }

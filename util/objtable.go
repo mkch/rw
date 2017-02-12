@@ -7,17 +7,27 @@ import (
 )
 
 // ObjectTable is a map of native.Handle to WrapperHolder.
-type ObjectTable struct {
+type ObjectTable interface {
+	// Register adds an WrapperHolder to this table, using it's handle as the key.
+	Register(obj WrapperHolder)
+	// Query returns the WrapperHolder with the handle in the table.
+	Query(handle native.Handle) WrapperHolder
+	// Remove removes the WrapperHolder with the handle form the table, and send AfterDestroyed event to the wrapper.
+	Remove(handle native.Handle)
+	Empty() bool
+	Print(name string, w io.Writer)
+}
+
+type objectTable struct {
 	m map[native.Handle]WrapperHolder
 }
 
 // NewObjectTable creates an ObjectTable.
 func NewObjectTable() ObjectTable {
-	return ObjectTable{make(map[native.Handle]WrapperHolder)}
+	return &objectTable{make(map[native.Handle]WrapperHolder)}
 }
 
-// Register adds an WrapperHolder to this table, using it's handle as the key.
-func (table ObjectTable) Register(obj WrapperHolder) {
+func (table *objectTable) Register(obj WrapperHolder) {
 	handle := obj.Wrapper().Handle()
 	if _, exists := table.m[handle]; exists {
 		panic("Duplicated handle")
@@ -25,17 +35,17 @@ func (table ObjectTable) Register(obj WrapperHolder) {
 	table.m[handle] = obj
 }
 
-// Query returns the WrapperHolder with the handle in the table.
-func (table ObjectTable) Query(handle native.Handle) WrapperHolder {
+func (table *objectTable) Query(handle native.Handle) WrapperHolder {
 	return table.m[handle]
 }
 
 // Remove removes the WrapperHolder with the handle form the table, and send AfterDestroyed event to the wrapper.
-func (table ObjectTable) Remove(handle native.Handle) {
+func (table *objectTable) Remove(handle native.Handle) {
 	if obj, ok := table.m[handle]; !ok {
 		return
 	} else {
 		delete(table.m, handle)
+		// TODO: gett invalid handle form HandleManager
 		obj.Wrapper().setHandle(0)
 		afterDestroyed := obj.Wrapper().AfterDestroyed()
 		if afterDestroyed.HasCallback() {
@@ -45,11 +55,11 @@ func (table ObjectTable) Remove(handle native.Handle) {
 	}
 }
 
-func (table ObjectTable) Empty() bool {
+func (table *objectTable) Empty() bool {
 	return len(table.m) == 0
 }
 
-func (table ObjectTable) Print(name string, w io.Writer) {
+func (table *objectTable) Print(name string, w io.Writer) {
 	fmt.Fprintf(w, "----- %v -----\n", name)
 	var i int
 	for handle, obj := range table.m {

@@ -21,6 +21,8 @@ type menuExtra interface {
 	rootWindow() Window
 	addAccelerators(Window)
 	removeAccelerators(Window)
+	setItemsTable(table util.ObjectTable)
+	findItem(item MenuItem) int
 }
 
 type menuBase struct {
@@ -50,6 +52,16 @@ func menuItemStateValue(item MenuItem) uint {
 	return state
 }
 
+func (m *menuBase) itemsTable() util.ObjectTable {
+	if m.opener != nil {
+		return m.opener.Wrapper().HandleManager().Table()
+	} else if m.window != nil {
+		return m.window.menuItemTable()
+	} else {
+		return defaultMenuItemTable
+	}
+}
+
 func (m *menuBase) rootWindow() Window {
 	var mm Menu = m
 	for {
@@ -71,7 +83,24 @@ func (m *menuBase) Window() Window {
 	return m.window
 }
 
+func (m *menuBase) setItemsTable(table util.ObjectTable) {
+	for index, item := range m.items {
+		item.setTableWithIndex(table, index)
+		if submenu := item.Submenu(); submenu != nil {
+			submenu.setItemsTable(table)
+		}
+	}
+}
+
 func (m *menuBase) setWindow(window Window) {
+	if window != nil && m.opener != nil {
+		m.opener.SetSubmenu(nil)
+	}
+	if window != nil {
+		m.setItemsTable(window.menuItemTable())
+	} else {
+		m.setItemsTable(defaultMenuItemTable)
+	}
 	m.window = window
 }
 
@@ -82,6 +111,7 @@ func (m *menuBase) InsertItem(item MenuItem, i int) {
 		if prevMenu := item.Menu(); prevMenu != nil {
 			prevMenu.RemoveItem(item)
 		}
+		item.setTable(m.itemsTable())
 		item.setMenu(m.Self().(Menu))
 
 		m.items = append(m.items, nil)
@@ -106,6 +136,7 @@ func (m *menuBase) AddItem(item MenuItem) {
 	} else if prevMenu != nil {
 		prevMenu.RemoveItem(item)
 	}
+	item.setTable(m.itemsTable())
 	item.setMenu(m.Self().(Menu))
 	m.items = append(m.items, item)
 	if item.Visible() {
@@ -162,6 +193,7 @@ func (m *menuBase) RemoveItem(item MenuItem) {
 		m.items = append(m.items[:i], m.items[i+1:]...)
 		m.removeChildItemFromUI(item)
 		item.setMenu(nil)
+		item.setTable(defaultMenuItemTable)
 	}
 }
 
@@ -244,8 +276,11 @@ func (h menuHandleManager) Create(b util.Bundle) native.Handle {
 	return h(b)
 }
 
-func allocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
-	m := &menuBase{}
+func initMenu(m *menuBase, createHandleFunc func(util.Bundle) native.Handle) *menuBase {
 	m.wrapper.SetHandleManager(menuHandleManager(createHandleFunc))
 	return m
+}
+
+func allocMenu(createHandleFunc func(util.Bundle) native.Handle) Menu {
+	return initMenu(&menuBase{}, createHandleFunc)
 }

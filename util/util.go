@@ -21,6 +21,7 @@ type HandleManager interface {
 type WrapperEvent struct {
 	sender     interface{}
 	recreating bool
+	bundle     Bundle
 }
 
 func (evt *WrapperEvent) Sender() interface{} {
@@ -30,6 +31,10 @@ func (evt *WrapperEvent) Sender() interface{} {
 // Recreating returns true if this object is being recreated.
 func (evt *WrapperEvent) Recreating() bool {
 	return evt.recreating
+}
+
+func (evt *WrapperEvent) Bundle() Bundle {
+	return evt.bundle
 }
 
 // Wrapper wraps a native object.
