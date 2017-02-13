@@ -13,7 +13,7 @@ type WindowPlatformSpecific Windows_WindowMessageReceiver
 
 type windowExtra interface {
 	accelTable() *acceltable.AccelTable
-	menuItemTable() util.ObjectTable
+	menuItemTable() *util.ObjectTable
 }
 
 type windowBase struct {
@@ -25,10 +25,10 @@ type windowBase struct {
 	accel        acceltable.AccelTable
 	prevWndProc  uintptr
 	onClose      event.Hub
-	menuItemTab  util.ObjectTable
+	menuItemTab  *util.ObjectTable
 }
 
-func (w *windowBase) menuItemTable() util.ObjectTable {
+func (w *windowBase) menuItemTable() *util.ObjectTable {
 	return w.menuItemTab
 }
 

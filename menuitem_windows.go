@@ -25,8 +25,8 @@ type menuItemExtra interface {
 	displayTitle() string
 	addAccelerator(Window)
 	removeAccelerator(Window)
-	setTable(table util.ObjectTable)
-	setTableWithIndex(table util.ObjectTable, index int)
+	setTable(table *util.ObjectTable)
+	setTableWithIndex(table *util.ObjectTable, index int)
 }
 
 type menuItemBase struct {
@@ -325,7 +325,7 @@ func (item *menuItemBase) Release() {
 }
 
 // setTable sets the table of this item. This item will be recreated.
-func (item *menuItemBase) setTable(table util.ObjectTable) {
+func (item *menuItemBase) setTable(table *util.ObjectTable) {
 	if item.menu != nil {
 		item.setTableWithIndex(table, item.menu.findItem(item.Self().(MenuItem)))
 	} else {
@@ -345,7 +345,7 @@ func (item *menuItemBase) setTable(table util.ObjectTable) {
 // index is the pos of this item in the menu. We can calculate this by iterating
 // the items of the menu, however if the pos is known calling this function is more
 // efficent.
-func (item *menuItemBase) setTableWithIndex(table util.ObjectTable, index int) {
+func (item *menuItemBase) setTableWithIndex(table *util.ObjectTable, index int) {
 	if index < 0 {
 		panic("Invalid index")
 	}
@@ -368,7 +368,7 @@ func (item *menuItemBase) afterDestroyed(event event.Event, nextHook event.Handl
 	we := event.(*util.WrapperEvent)
 	if we.Recreating() {
 		if b := we.Bundle(); b != nil {
-			if table, ok := b[menuItem_KEY_TABLE].(util.ObjectTable); ok {
+			if table, ok := b[menuItem_KEY_TABLE].(*util.ObjectTable); ok {
 				item.handleManager.table = table
 			}
 		}
@@ -400,7 +400,7 @@ func (item *menuItemBase) afterRegistered(event event.Event, nextHook event.Hand
 
 type menuItemHandleManager struct {
 	create func(util.Bundle) native.Handle
-	table  util.ObjectTable
+	table  *util.ObjectTable
 }
 
 func (h *menuItemHandleManager) Destroy(handle native.Handle) {
@@ -415,7 +415,7 @@ func (h *menuItemHandleManager) Invalid() native.Handle {
 	return 0
 }
 
-func (h *menuItemHandleManager) Table() util.ObjectTable {
+func (h *menuItemHandleManager) Table() *util.ObjectTable {
 	return h.table
 }
 

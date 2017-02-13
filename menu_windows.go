@@ -21,7 +21,7 @@ type menuExtra interface {
 	rootWindow() Window
 	addAccelerators(Window)
 	removeAccelerators(Window)
-	setItemsTable(table util.ObjectTable)
+	setItemsTable(table *util.ObjectTable)
 	findItem(item MenuItem) int
 }
 
@@ -52,7 +52,7 @@ func menuItemStateValue(item MenuItem) uint {
 	return state
 }
 
-func (m *menuBase) itemsTable() util.ObjectTable {
+func (m *menuBase) itemsTable() *util.ObjectTable {
 	if m.opener != nil {
 		return m.opener.Wrapper().HandleManager().Table()
 	} else if m.window != nil {
@@ -83,7 +83,7 @@ func (m *menuBase) Window() Window {
 	return m.window
 }
 
-func (m *menuBase) setItemsTable(table util.ObjectTable) {
+func (m *menuBase) setItemsTable(table *util.ObjectTable) {
 	for index, item := range m.items {
 		item.setTableWithIndex(table, index)
 		if submenu := item.Submenu(); submenu != nil {
@@ -272,7 +272,7 @@ func (h menuHandleManager) Invalid() native.Handle {
 	return 0
 }
 
-func (h menuHandleManager) Table() util.ObjectTable {
+func (h menuHandleManager) Table() *util.ObjectTable {
 	return menuTable
 }
 

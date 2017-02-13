@@ -42,6 +42,6 @@ func (m objcHandleManager) Invalid() native.Handle {
 	return 0
 }
 
-func (m objcHandleManager) Table() util.ObjectTable {
+func (m objcHandleManager) Table() *util.ObjectTable {
 	return defaultObjectTable
 }

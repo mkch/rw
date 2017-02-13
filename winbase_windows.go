@@ -65,6 +65,6 @@ func (m hwndManager) Invalid() native.Handle {
 	return 0
 }
 
-func (m hwndManager) Table() util.ObjectTable {
+func (m hwndManager) Table() *util.ObjectTable {
 	return defaultObjectTable
 }

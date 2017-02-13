@@ -6,7 +6,6 @@ import (
 	"github.com/mkch/rw/internal/native/darwin/autoreleasepool"
 	"github.com/mkch/rw/internal/native/darwin/deallochook"
 	"github.com/mkch/rw/internal/native/darwin/post"
-
 	"github.com/mkch/rw/native"
 	"io"
 )
