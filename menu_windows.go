@@ -1,6 +1,7 @@
 package rw
 
 import (
+	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/menu"
 	"github.com/mkch/rw/internal/native/windows/window"
 	"github.com/mkch/rw/native"
@@ -21,8 +22,7 @@ type menuExtra interface {
 	rootWindow() Window
 	addAccelerators(Window)
 	removeAccelerators(Window)
-	setItemsTable(table *util.ObjectTable)
-	findItem(item MenuItem) int
+	syncItemPos()
 }
 
 type menuBase struct {
@@ -52,16 +52,6 @@ func menuItemStateValue(item MenuItem) uint {
 	return state
 }
 
-func (m *menuBase) itemsTable() *util.ObjectTable {
-	if m.opener != nil {
-		return m.opener.Wrapper().HandleManager().Table()
-	} else if m.window != nil {
-		return m.window.menuItemTable()
-	} else {
-		return defaultMenuItemTable
-	}
-}
-
 func (m *menuBase) rootWindow() Window {
 	var mm Menu = m
 	for {
@@ -83,23 +73,9 @@ func (m *menuBase) Window() Window {
 	return m.window
 }
 
-func (m *menuBase) setItemsTable(table *util.ObjectTable) {
-	for index, item := range m.items {
-		item.setTableWithIndex(table, index)
-		if submenu := item.Submenu(); submenu != nil {
-			submenu.setItemsTable(table)
-		}
-	}
-}
-
 func (m *menuBase) setWindow(window Window) {
 	if window != nil && m.opener != nil {
 		m.opener.SetSubmenu(nil)
-	}
-	if window != nil {
-		m.setItemsTable(window.menuItemTable())
-	} else {
-		m.setItemsTable(defaultMenuItemTable)
 	}
 	m.window = window
 }
@@ -111,13 +87,11 @@ func (m *menuBase) InsertItem(item MenuItem, i int) {
 		if prevMenu := item.Menu(); prevMenu != nil {
 			prevMenu.RemoveItem(item)
 		}
-		item.setTable(m.itemsTable())
 		item.setMenu(m.Self().(Menu))
-
 		m.items = append(m.items, nil)
 		copy(m.items[i+1:], m.items[i:])
 		m.items[i] = item
-
+		m.syncItemPos()
 		if item.Visible() {
 			m.addChildItemToUI(item)
 		}
@@ -131,17 +105,7 @@ func (m *menuBase) drawMenuBar() {
 }
 
 func (m *menuBase) AddItem(item MenuItem) {
-	if prevMenu := item.Menu(); prevMenu == m.Self() {
-		panic("Item is already in this menu")
-	} else if prevMenu != nil {
-		prevMenu.RemoveItem(item)
-	}
-	item.setTable(m.itemsTable())
-	item.setMenu(m.Self().(Menu))
-	m.items = append(m.items, item)
-	if item.Visible() {
-		m.addChildItemToUI(item)
-	}
+	m.InsertItem(item, len(m.items))
 }
 
 func (m *menuBase) displayPos(item MenuItem) int {
@@ -161,7 +125,7 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 	var menuItemInfo *menu.MenuItemInfo
 	if item.separator() {
 		menuItemInfo = &menu.MenuItemInfo{
-			Mask: menu.MIIM_FTYPE | menu.MIIM_ID,
+			Mask: menu.MIIM_FTYPE,
 			Type: menu.MFT_SEPARATOR,
 		}
 	} else {
@@ -175,7 +139,10 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 			menuItemInfo.SubMenu = submenu.Wrapper().Handle()
 		}
 	}
-	menuItemInfo.ID = uint(item.Wrapper().Handle())
+	if id := item.Id(); id != 0 {
+		menuItemInfo.Mask |= menu.MIIM_ID
+		menuItemInfo.ID = uint(id)
+	}
 	menu.InsertMenuItem(m.Wrapper().Handle(), uint(m.displayPos(item)), true, menuItemInfo)
 	if win := m.rootWindow(); win != nil {
 		item.addAccelerator(win)
@@ -186,14 +153,26 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 	m.drawMenuBar()
 }
 
+func (m *menuBase) syncItemPos() {
+	var pos = 0
+	for _, item := range m.items {
+		if item.Visible() {
+			item.setPos(native.Handle(pos))
+			pos++
+		}
+	}
+}
+
 func (m *menuBase) RemoveItem(item MenuItem) {
 	if i := m.findItem(item); i == -1 {
 		panic("Invalid menu item to remove, not in this menu")
 	} else {
 		m.items = append(m.items[:i], m.items[i+1:]...)
-		m.removeChildItemFromUI(item)
+		m.syncItemPos()
+		if item.Visible() {
+			m.removeChildItemFromUI(item)
+		}
 		item.setMenu(nil)
-		item.setTable(defaultMenuItemTable)
 	}
 }
 
@@ -218,15 +197,15 @@ func (m *menuBase) addAccelerators(win Window) {
 }
 
 func (m *menuBase) removeChildItemFromUI(item MenuItem) {
-	// Do not call menu.DeleteMenu here.
-	// menu.RemoveMenu does not destroy the sub menu.
-	menu.RemoveMenu(m.Wrapper().Handle(), uint(item.Wrapper().Handle()), menu.MF_BYCOMMAND)
 	if win := m.rootWindow(); win != nil {
 		item.removeAccelerator(win)
 		if sub := item.Submenu(); sub != nil {
 			sub.removeAccelerators(win)
 		}
 	}
+	// Do not call menu.DeleteMenu here.
+	// menu.RemoveMenu does not destroy the sub menu.
+	menu.RemoveMenu(m.Wrapper().Handle(), uint(item.Wrapper().Handle()), menu.MF_BYPOSITION)
 	m.drawMenuBar()
 }
 
@@ -236,6 +215,14 @@ func (m *menuBase) setOpener(item MenuItem) {
 
 func (m *menuBase) Opener() MenuItem {
 	return m.opener
+}
+
+func (m *menuBase) afterRegistered(event event.Event, nextHook event.Handler) bool {
+	menu.SetMenuInfo(m.wrapper.Handle(), &menu.MenuInfo{
+		Mask:  menu.MIM_STYLE,
+		Style: menu.MNS_NOTIFYBYPOS,
+	})
+	return nextHook(event)
 }
 
 func (m *menuBase) Release() {
@@ -282,6 +269,7 @@ func (h menuHandleManager) Create(b util.Bundle) native.Handle {
 
 func initMenu(m *menuBase, createHandleFunc func(util.Bundle) native.Handle) *menuBase {
 	m.wrapper.SetHandleManager(menuHandleManager(createHandleFunc))
+	m.wrapper.AfterRegistered().AddHook(m.afterRegistered)
 	return m
 }
 

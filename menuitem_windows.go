@@ -4,18 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/mkch/rw/event"
-	"github.com/mkch/rw/internal/native/windows/acceltable"
 	"github.com/mkch/rw/internal/native/windows/menu"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
 	"github.com/mkch/rw/util/ustr"
 	"strings"
-	"unicode"
 )
-
-// defaultMenuItemTable is the ObjectTable which contains MenuItems that do not attached to a window.
-// MenuItem handle(ID) is a different type from Window handle.
-var defaultMenuItemTable = util.NewObjectTable()
 
 const DefaultModifierKey = ControlKey
 
@@ -25,14 +19,17 @@ type menuItemExtra interface {
 	displayTitle() string
 	addAccelerator(Window)
 	removeAccelerator(Window)
-	setTable(table *util.ObjectTable)
-	setTableWithIndex(table *util.ObjectTable, index int)
+	setPos(native.Handle)
+	Id() uint16
+	setId(id uint16)
 }
 
 type menuItemBase struct {
 	objectBase
-	wrapper       util.WrapperImpl
-	handleManager menuItemHandleManager
+	wrapper util.WrapperImpl
+
+	table      *util.ObjectTable
+	registered bool
 
 	sep              bool // Whether is a menu separator
 	title            string
@@ -40,12 +37,22 @@ type menuItemBase struct {
 	checked          bool
 	visible          bool
 	menu             Menu
+	pos              native.Handle // The position of this item in menu
+	id               uint16        // Non-zero if accelerator is active.
 	submenu          Menu
 	onClick          event.Hub
 	accelKey         rune        // The basic accelerator key.
 	accelModMask     ModifierKey // The accelerator key modifiers.
 	mnemonic         rune        // Underlined letter.
 	acceleratorAdded bool
+}
+
+func (item *menuItemBase) setPos(pos native.Handle) {
+	item.pos = pos
+	util.Recreate(item, nil)
+	if Debug {
+		Post(item.syncDisplayTitleToUI)
+	}
 }
 
 func (item *menuItemBase) keyModifierString() string {
@@ -105,8 +112,8 @@ func (item *menuItemBase) SetTitle(title string) {
 }
 
 func (item *menuItemBase) syncDisplayTitleToUI() {
-	if item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), false, &menu.MenuItemInfo{
+	if item.visible && item.menu != nil {
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
 			Mask:     menu.MIIM_STRING,
 			TypeData: uintptr(ustr.CStringUtf16(item.displayTitle())),
 		})
@@ -131,10 +138,13 @@ func (item *menuItemBase) SetVisible(visible bool) {
 	item.visible = visible
 	if item.menu != nil {
 		if item.visible {
+			item.addAccelerator(item.menu.rootWindow())
 			item.menu.addChildItemToUI(item.Self().(MenuItem))
 		} else {
+			item.removeAccelerator(item.menu.rootWindow())
 			item.menu.removeChildItemFromUI(item.Self().(MenuItem))
 		}
+		item.menu.syncItemPos()
 	}
 }
 
@@ -167,8 +177,8 @@ func (item *menuItemBase) SetChecked(checked bool) {
 }
 
 func (item *menuItemBase) syncStateToUI() {
-	if item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), false, &menu.MenuItemInfo{
+	if item.visible && item.menu != nil {
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
 			Mask:  menu.MIIM_STATE,
 			State: menuItemStateValue(item),
 		})
@@ -176,14 +186,23 @@ func (item *menuItemBase) syncStateToUI() {
 	}
 }
 
-func setMenuItemId(menuHandle native.Handle, pos int, id native.Handle) {
-	if pos < 0 {
-		panic("invalid pos")
+func (item *menuItemBase) Id() uint16 {
+	return item.id
+}
+
+// item.menu must be non-nil.
+func (item *menuItemBase) setId(id uint16) {
+	item.checkValidaty()
+	if item.id == id {
+		return
 	}
-	menu.SetMenuItemInfo(menuHandle, uint(pos), true, &menu.MenuItemInfo{
-		Mask: menu.MIIM_ID,
-		ID:   uint(id),
-	})
+	item.id = id
+	if item.visible {
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
+			Mask: menu.MIIM_ID,
+			ID:   uint(id),
+		})
+	}
 }
 
 func (item *menuItemBase) Menu() Menu {
@@ -209,7 +228,6 @@ func (item *menuItemBase) SetSubmenu(submenu Menu) {
 
 	if item.submenu != nil {
 		item.submenu.setOpener(nil)
-		item.submenu.setItemsTable(defaultMenuItemTable)
 	}
 
 	var submenuHandle native.Handle
@@ -222,11 +240,10 @@ func (item *menuItemBase) SetSubmenu(submenu Menu) {
 
 		submenuHandle = submenu.Wrapper().Handle()
 		submenu.setOpener(item.Self().(MenuItem))
-		submenu.setItemsTable(item.handleManager.Table())
 	}
 
-	if item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), false, &menu.MenuItemInfo{
+	if item.visible && item.menu != nil {
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
 			Mask:    menu.MIIM_SUBMENU,
 			SubMenu: submenuHandle,
 		})
@@ -240,37 +257,19 @@ func (item *menuItemBase) hasAccelerator() bool {
 	return item.accelKey != 0
 }
 
-func addAcceleratorToWindow(win Window, accelKey rune, accelModMask ModifierKey, id uint16) {
-	// http://stackoverflow.com/questions/23592079/why-does-createacceleratortable-not-work-without-fvirtkey
-	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
-	var fVirt byte = acceltable.FVIRTKEY
-	k := unicode.ToUpper(accelKey) // Virtual key code.
-	if accelModMask&ControlKey != 0 {
-		fVirt |= acceltable.FCONTROL
-	}
-	if accelModMask&AltKey != 0 {
-		fVirt |= acceltable.FALT
-	}
-	if accelModMask&ShiftKey != 0 {
-		fVirt |= acceltable.FSHIFT
-	}
-	win.accelTable().Add(fVirt, uint16(k), id)
-}
-
 func (item *menuItemBase) addAccelerator(win Window) {
-	if item.hasAccelerator() && !item.acceleratorAdded {
-		addAcceleratorToWindow(win, item.accelKey, item.accelModMask, uint16(item.Wrapper().Handle()))
+	if item.visible && item.hasAccelerator() && !item.acceleratorAdded {
+		win.addMenuItemAccelerator(item.Self().(MenuItem))
 		item.acceleratorAdded = true
 	}
 }
 
-func removeAcceleratorFromWindow(win Window, id uint16) {
-	win.accelTable().Remove(id)
-}
-
 func (item *menuItemBase) removeAccelerator(win Window) {
 	if item.acceleratorAdded {
-		removeAcceleratorFromWindow(win, uint16(item.Wrapper().Handle()))
+		id := menu.GetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.pos), true, &menu.MenuItemInfo{
+			Mask: menu.MIIM_ID,
+		}).ID
+		win.removeMenuItemAccelerator(uint16(id))
 		item.acceleratorAdded = false
 	}
 }
@@ -286,14 +285,14 @@ func (item *menuItemBase) SetKeyboardShortcut(mod ModifierKey, key rune) {
 	if item.accelKey == key && item.accelModMask == mod {
 		return
 	}
-	if item.menu != nil {
+	if item.visible && item.menu != nil {
 		if win := item.menu.rootWindow(); win != nil {
 			item.removeAccelerator(win)
 		}
 	}
 	item.accelKey, item.accelModMask = key, mod
 	item.syncDisplayTitleToUI()
-	if item.menu != nil {
+	if item.visible && item.menu != nil {
 		if win := item.menu.rootWindow(); win != nil {
 			item.addAccelerator(win)
 		}
@@ -324,122 +323,66 @@ func (item *menuItemBase) Release() {
 	}
 }
 
-// setTable sets the table of this item. This item will be recreated.
-func (item *menuItemBase) setTable(table *util.ObjectTable) {
-	if item.menu != nil {
-		item.setTableWithIndex(table, item.menu.findItem(item.Self().(MenuItem)))
+// HandleManager part:
+func (item *menuItemBase) Destroy(handle native.Handle) {
+	item.table.Remove(handle)
+}
+
+func (item *menuItemBase) Valid(handle native.Handle) bool {
+	return handle != item.Invalid()
+}
+
+func (item *menuItemBase) Invalid() native.Handle {
+	return ^native.Handle(0)
+}
+
+func (item *menuItemBase) Table() *util.ObjectTable {
+	return item.table
+}
+
+func (item *menuItemBase) Create(b util.Bundle) native.Handle {
+	return item.pos
+}
+
+// ObjectTableStorage part:
+func (item *menuItemBase) Get(key native.Handle) (value util.WrapperHolder, exists bool) {
+	if item.registered && key == item.pos {
+		return item.Self().(MenuItem), true
 	} else {
-		if table != item.handleManager.Table() {
-			util.Recreate(item, util.Bundle{menuItem_KEY_TABLE: table, menuItem_KEY_OLD_ID: item.Wrapper().Handle()})
-		}
-		if Debug {
-			// For displayed menu item id.
-			// Post: Changing menu item string by id in the same message cicle of changing menu item id
-			// fails for menu bar items.
-			Post(item.syncDisplayTitleToUI)
-		}
+		return nil, false
 	}
 }
 
-// setTableWithIndex sets the table of this item. This item must be in a menu.
-// index is the pos of this item in the menu. We can calculate this by iterating
-// the items of the menu, however if the pos is known calling this function is more
-// efficent.
-func (item *menuItemBase) setTableWithIndex(table *util.ObjectTable, index int) {
-	if index < 0 {
-		panic("Invalid index")
-	}
-	if table != item.handleManager.Table() {
-		util.Recreate(item, util.Bundle{menuItem_KEY_TABLE: table, menuItem_KEY_OLD_ID: item.Wrapper().Handle(), menuItem_KEY_INDEX: index})
-	}
-	if Debug {
-		// For displayed menu item id.
-		// Post: Changing menu item string by id in the same message cicle of changing menu item id
-		// fails for menu bar items.
-		Post(item.syncDisplayTitleToUI)
+func (item *menuItemBase) Set(key native.Handle, value util.WrapperHolder) {
+	if key != item.pos || item.Self().(MenuItem) != value {
+		panic("Invalid arguments")
 	}
 }
 
-const menuItem_KEY_TABLE = "rw:menuitem-table"
-const menuItem_KEY_INDEX = "rw:menuitem-index"
-const menuItem_KEY_OLD_ID = "rw:menuitem-old_id"
-
-func (item *menuItemBase) afterDestroyed(event event.Event, nextHook event.Handler) bool {
-	we := event.(*util.WrapperEvent)
-	if we.Recreating() {
-		if b := we.Bundle(); b != nil {
-			if table, ok := b[menuItem_KEY_TABLE].(*util.ObjectTable); ok {
-				item.handleManager.table = table
-			}
-		}
+func (item *menuItemBase) Del(key native.Handle) {
+	if key != item.pos {
+		panic("Invalid handle")
 	}
-	return nextHook(event)
 }
 
-func (item *menuItemBase) afterRegistered(event event.Event, nextHook event.Handler) bool {
-	we := event.(*util.WrapperEvent)
-	if we.Recreating() {
-		if b := we.Bundle(); b != nil {
-			if index, ok := b[menuItem_KEY_INDEX].(int); ok {
-				id := item.Wrapper().Handle()
-				if oldId, ok := b[menuItem_KEY_OLD_ID].(native.Handle); !ok || oldId != id {
-					// item.menu can't be nil if oldId is present.
-					setMenuItemId(item.menu.Wrapper().Handle(), index, id)
-					if item.hasAccelerator() && item.acceleratorAdded {
-						// item.menu.rootWindow() can't be nil, because the accelerator has been added.
-						win := item.menu.rootWindow()
-						removeAcceleratorFromWindow(win, uint16(oldId))
-						addAcceleratorToWindow(win, item.accelKey, item.accelModMask, uint16(id))
-					}
-				}
-			}
-		}
-	}
-	return nextHook(event)
+func (item *menuItemBase) Len() int {
+	return 1
 }
 
-type menuItemHandleManager struct {
-	create func(util.Bundle) native.Handle
-	table  *util.ObjectTable
+func (item *menuItemBase) ForEach(f func(native.Handle, util.WrapperHolder)) {
+	f(item.pos, item.Self().(MenuItem))
 }
 
-func (h *menuItemHandleManager) Destroy(handle native.Handle) {
-	h.table.Remove(handle)
-}
-
-func (h *menuItemHandleManager) Valid(handle native.Handle) bool {
-	return handle != h.Invalid()
-}
-
-func (h *menuItemHandleManager) Invalid() native.Handle {
-	return 0
-}
-
-func (h *menuItemHandleManager) Table() *util.ObjectTable {
-	return h.table
-}
-
-func (h *menuItemHandleManager) Create(b util.Bundle) native.Handle {
-	return h.create(b)
-}
-
-func initMenuItemBase(item *menuItemBase, createHandleFunc func(util.Bundle) native.Handle) *menuItemBase {
-	item.wrapper.AfterDestroyed().AddHook(item.afterDestroyed)
-	item.wrapper.AfterRegistered().AddHook(item.afterRegistered)
-	item.handleManager.table = defaultMenuItemTable
-	item.handleManager.create = createHandleFunc
-	item.wrapper.SetHandleManager(&item.handleManager)
+func initMenuItemBase(item *menuItemBase) *menuItemBase {
+	item.table = util.NewObjectTableWithStorage(item)
+	item.wrapper.SetHandleManager(item)
 	return item
 }
 
-func allocMenuItemImp(createHandleFunc func(util.Bundle) native.Handle, sep bool) MenuItem {
-	return initMenuItemBase(&menuItemBase{sep: sep, visible: true, enabled: true}, createHandleFunc)
-}
-
 func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
-	return allocMenuItemImp(createHandleFunc, false)
+	return initMenuItemBase(&menuItemBase{sep: false, visible: true, enabled: true})
 }
 
 func allocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
-	return allocMenuItemImp(createHandleFunc, true)
+	return initMenuItemBase(&menuItemBase{sep: true, visible: true, enabled: true})
 }
