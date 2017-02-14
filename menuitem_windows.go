@@ -186,14 +186,7 @@ func (item *menuItemBase) setId(id uint16) {
 	if item.id == id {
 		return
 	}
-	fmt.Printf("item=%v menu=%v\n", item, item.menu)
 	item.id = id
-	if item.visible {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
-			Mask: menu.MIIM_ID,
-			ID:   uint(id),
-		})
-	}
 }
 
 func (item *menuItemBase) Menu() Menu {
@@ -257,10 +250,7 @@ func (item *menuItemBase) addAccelerator(win Window) {
 
 func (item *menuItemBase) removeAccelerator(win Window) {
 	if item.acceleratorAdded {
-		id := menu.GetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
-			Mask: menu.MIIM_ID,
-		}).ID
-		win.removeMenuItemAccelerator(uint16(id))
+		win.removeMenuItemAccelerator(item.id)
 		item.acceleratorAdded = false
 	}
 }
