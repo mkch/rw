@@ -128,8 +128,8 @@ func (item *menuItemBase) SetVisible(visible bool) {
 	if item.menu != nil {
 		if visible {
 			item.visible = visible
-			item.addAccelerator(item.menu.rootWindow())
 			item.menu.addChildItemToUI(item.Self().(MenuItem))
+			item.addAccelerator(item.menu.rootWindow())
 		} else {
 			item.removeAccelerator(item.menu.rootWindow())
 			item.menu.removeChildItemFromUI(item.Self().(MenuItem))
