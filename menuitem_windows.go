@@ -19,7 +19,6 @@ type menuItemExtra interface {
 	displayTitle() string
 	addAccelerator(Window)
 	removeAccelerator(Window)
-	setPos(native.Handle)
 	Id() uint16
 	setId(id uint16)
 }
@@ -28,8 +27,8 @@ type menuItemBase struct {
 	objectBase
 	wrapper util.WrapperImpl
 
-	table      *util.ObjectTable
-	registered bool
+	table   *util.ObjectTable
+	inTable bool
 
 	sep              bool // Whether is a menu separator
 	title            string
@@ -37,22 +36,13 @@ type menuItemBase struct {
 	checked          bool
 	visible          bool
 	menu             Menu
-	pos              native.Handle // The position of this item in menu
-	id               uint16        // Non-zero if accelerator is active.
+	id               uint16 // Non-zero if accelerator is active.
 	submenu          Menu
 	onClick          event.Hub
 	accelKey         rune        // The basic accelerator key.
 	accelModMask     ModifierKey // The accelerator key modifiers.
 	mnemonic         rune        // Underlined letter.
 	acceleratorAdded bool
-}
-
-func (item *menuItemBase) setPos(pos native.Handle) {
-	item.pos = pos
-	util.Recreate(item, nil)
-	if Debug {
-		Post(item.syncDisplayTitleToUI)
-	}
 }
 
 func (item *menuItemBase) keyModifierString() string {
@@ -113,7 +103,7 @@ func (item *menuItemBase) SetTitle(title string) {
 
 func (item *menuItemBase) syncDisplayTitleToUI() {
 	if item.visible && item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
 			Mask:     menu.MIIM_STRING,
 			TypeData: uintptr(ustr.CStringUtf16(item.displayTitle())),
 		})
@@ -135,16 +125,16 @@ func (item *menuItemBase) SetVisible(visible bool) {
 	if item.visible == visible {
 		return
 	}
-	item.visible = visible
 	if item.menu != nil {
-		if item.visible {
+		if visible {
+			item.visible = visible
 			item.addAccelerator(item.menu.rootWindow())
 			item.menu.addChildItemToUI(item.Self().(MenuItem))
 		} else {
 			item.removeAccelerator(item.menu.rootWindow())
 			item.menu.removeChildItemFromUI(item.Self().(MenuItem))
+			item.visible = visible
 		}
-		item.menu.syncItemPos()
 	}
 }
 
@@ -178,7 +168,7 @@ func (item *menuItemBase) SetChecked(checked bool) {
 
 func (item *menuItemBase) syncStateToUI() {
 	if item.visible && item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
 			Mask:  menu.MIIM_STATE,
 			State: menuItemStateValue(item),
 		})
@@ -196,9 +186,10 @@ func (item *menuItemBase) setId(id uint16) {
 	if item.id == id {
 		return
 	}
+	fmt.Printf("item=%v menu=%v\n", item, item.menu)
 	item.id = id
 	if item.visible {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
 			Mask: menu.MIIM_ID,
 			ID:   uint(id),
 		})
@@ -243,7 +234,7 @@ func (item *menuItemBase) SetSubmenu(submenu Menu) {
 	}
 
 	if item.visible && item.menu != nil {
-		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.Wrapper().Handle()), true, &menu.MenuItemInfo{
+		menu.SetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
 			Mask:    menu.MIIM_SUBMENU,
 			SubMenu: submenuHandle,
 		})
@@ -266,7 +257,7 @@ func (item *menuItemBase) addAccelerator(win Window) {
 
 func (item *menuItemBase) removeAccelerator(win Window) {
 	if item.acceleratorAdded {
-		id := menu.GetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.pos), true, &menu.MenuItemInfo{
+		id := menu.GetMenuItemInfo(item.menu.Wrapper().Handle(), uint(item.menu.uiPos(item.Self().(MenuItem))), true, &menu.MenuItemInfo{
 			Mask: menu.MIIM_ID,
 		}).ID
 		win.removeMenuItemAccelerator(uint16(id))
@@ -324,12 +315,13 @@ func (item *menuItemBase) Release() {
 }
 
 // HandleManager part:
+
 func (item *menuItemBase) Destroy(handle native.Handle) {
 	item.table.Remove(handle)
 }
 
 func (item *menuItemBase) Valid(handle native.Handle) bool {
-	return handle != item.Invalid()
+	return handle == 0
 }
 
 func (item *menuItemBase) Invalid() native.Handle {
@@ -341,12 +333,16 @@ func (item *menuItemBase) Table() *util.ObjectTable {
 }
 
 func (item *menuItemBase) Create(b util.Bundle) native.Handle {
-	return item.pos
+	// MenuItem does not wrap a handle.
+	// 0 is the dummy valid handle for all MenuItem.
+	return 0
 }
 
 // ObjectTableStorage part:
+// Every MenuItem has its own table in which the only valid object is the MenuItem itself.
+
 func (item *menuItemBase) Get(key native.Handle) (value util.WrapperHolder, exists bool) {
-	if item.registered && key == item.pos {
+	if item.inTable && key == 0 {
 		return item.Self().(MenuItem), true
 	} else {
 		return nil, false
@@ -354,14 +350,15 @@ func (item *menuItemBase) Get(key native.Handle) (value util.WrapperHolder, exis
 }
 
 func (item *menuItemBase) Set(key native.Handle, value util.WrapperHolder) {
-	if key != item.pos || item.Self().(MenuItem) != value {
+	if key != 0 || item.Self().(MenuItem) != value {
 		panic("Invalid arguments")
 	}
+	item.inTable = true
 }
 
 func (item *menuItemBase) Del(key native.Handle) {
-	if key != item.pos {
-		panic("Invalid handle")
+	if key == 0 && item.inTable {
+		item.inTable = false
 	}
 }
 
@@ -370,7 +367,7 @@ func (item *menuItemBase) Len() int {
 }
 
 func (item *menuItemBase) ForEach(f func(native.Handle, util.WrapperHolder)) {
-	f(item.pos, item.Self().(MenuItem))
+	f(item.wrapper.Handle(), item.Self().(MenuItem))
 }
 
 func initMenuItemBase(item *menuItemBase) *menuItemBase {

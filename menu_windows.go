@@ -16,13 +16,14 @@ var menuTable = util.NewObjectTable()
 type menuExtra interface {
 	setOpener(MenuItem)
 	setWindow(Window)
+	uiPos(item MenuItem) int
+	uiItem(i int) MenuItem
 	addChildItemToUI(MenuItem)
 	removeChildItemFromUI(MenuItem)
 	drawMenuBar()
 	rootWindow() Window
 	addAccelerators(Window)
 	removeAccelerators(Window)
-	syncItemPos()
 }
 
 type menuBase struct {
@@ -91,7 +92,6 @@ func (m *menuBase) InsertItem(item MenuItem, i int) {
 		m.items = append(m.items, nil)
 		copy(m.items[i+1:], m.items[i:])
 		m.items[i] = item
-		m.syncItemPos()
 		if item.Visible() {
 			m.addChildItemToUI(item)
 		}
@@ -108,14 +108,30 @@ func (m *menuBase) AddItem(item MenuItem) {
 	m.InsertItem(item, len(m.items))
 }
 
-func (m *menuBase) displayPos(item MenuItem) int {
-	var pos int
-	for _, child := range m.items {
-		if child == item {
-			return pos
+func (m *menuBase) uiItem(i int) MenuItem {
+	if i < 0 {
+		panic("Invalid index")
+	}
+	var pos = -1
+	for _, item := range m.items {
+		if item.Visible() {
+			pos++
+			if pos == i {
+				return item
+			}
 		}
+	}
+	panic("No such menu item")
+}
+
+func (m *menuBase) uiPos(item MenuItem) int {
+	var pos = -1
+	for _, child := range m.items {
 		if child.Visible() {
 			pos++
+			if child == item {
+				return pos
+			}
 		}
 	}
 	panic("No such menu item")
@@ -143,7 +159,7 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 		menuItemInfo.Mask |= menu.MIIM_ID
 		menuItemInfo.ID = uint(id)
 	}
-	menu.InsertMenuItem(m.Wrapper().Handle(), uint(m.displayPos(item)), true, menuItemInfo)
+	menu.InsertMenuItem(m.Wrapper().Handle(), uint(m.uiPos(item)), true, menuItemInfo)
 	if win := m.rootWindow(); win != nil {
 		item.addAccelerator(win)
 		if sub := item.Submenu(); sub != nil {
@@ -153,26 +169,15 @@ func (m *menuBase) addChildItemToUI(item MenuItem) {
 	m.drawMenuBar()
 }
 
-func (m *menuBase) syncItemPos() {
-	var pos = 0
-	for _, item := range m.items {
-		if item.Visible() {
-			item.setPos(native.Handle(pos))
-			pos++
-		}
-	}
-}
-
 func (m *menuBase) RemoveItem(item MenuItem) {
 	if i := m.findItem(item); i == -1 {
 		panic("Invalid menu item to remove, not in this menu")
 	} else {
-		m.items = append(m.items[:i], m.items[i+1:]...)
-		m.syncItemPos()
 		if item.Visible() {
 			m.removeChildItemFromUI(item)
 		}
 		item.setMenu(nil)
+		m.items = append(m.items[:i], m.items[i+1:]...)
 	}
 }
 
@@ -205,7 +210,7 @@ func (m *menuBase) removeChildItemFromUI(item MenuItem) {
 	}
 	// Do not call menu.DeleteMenu here.
 	// menu.RemoveMenu does not destroy the sub menu.
-	menu.RemoveMenu(m.Wrapper().Handle(), uint(item.Wrapper().Handle()), menu.MF_BYPOSITION)
+	menu.RemoveMenu(m.Wrapper().Handle(), uint(m.uiPos(item)), menu.MF_BYPOSITION)
 	m.drawMenuBar()
 }
 

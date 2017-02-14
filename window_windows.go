@@ -209,7 +209,7 @@ func (w *windowBase) handleAccelCommand(id uint16) {
 
 func (w *windowBase) handleMenuCommand(menuHandle native.Handle, index int) {
 	if menu, ok := menuTable.Query(menuHandle).(Menu); ok {
-		if menuItem := menu.Item(index); menuItem.OnClick().HasHandler() {
+		if menuItem := menu.uiItem(index); menuItem.OnClick().HasHandler() {
 			menuItem.OnClick().Send(&simpleEvent{sender: menuItem})
 		}
 	}
