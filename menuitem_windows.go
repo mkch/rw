@@ -362,10 +362,18 @@ func initMenuItemBase(item *menuItemBase) *menuItemBase {
 	return item
 }
 
-func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+func allocMenuItem() MenuItem {
 	return initMenuItemBase(&menuItemBase{sep: false, visible: true, enabled: true})
 }
 
-func allocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+func allocSeparatorMenuItem() MenuItem {
 	return initMenuItemBase(&menuItemBase{sep: true, visible: true, enabled: true})
+}
+
+func AllocMenuItem() MenuItem {
+	return allocMenuItem()
+}
+
+func AllocSeparatorMenuItem() MenuItem {
+	return allocSeparatorMenuItem()
 }
