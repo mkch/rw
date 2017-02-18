@@ -2,7 +2,6 @@ package rw
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/mkch/rw/event"
 	"github.com/mkch/rw/internal/native/windows/menu"
 	"github.com/mkch/rw/native"
@@ -61,9 +60,6 @@ func (item *menuItemBase) keyModifierString() string {
 
 func (item *menuItemBase) displayTitle() string {
 	buf := &bytes.Buffer{}
-	if Debug {
-		fmt.Fprintf(buf, "[0x%x] ", item.Wrapper().Handle())
-	}
 	buf.WriteString(util.Windows_ControlTitleWithMnemonic(strings.Replace(item.title, "\t", "    ", -1), item.mnemonic))
 	if mod := item.keyModifierString(); mod != "" {
 		buf.WriteRune('\t')
