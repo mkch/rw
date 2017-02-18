@@ -18,7 +18,7 @@ type HandleManager interface {
 	// Invalid returns a invalid object.
 	Invalid() native.Handle
 	// Table returns the ObjectTable in which this object is.
-	Table() ObjectTable
+	Table() *ObjectTable
 }
 
 type WrapperEvent struct {

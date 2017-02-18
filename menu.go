@@ -159,17 +159,3 @@ type MenuItem interface {
 func (item *menuItemBase) Wrapper() util.Wrapper {
 	return &item.wrapper
 }
-
-func AllocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
-	if createHandleFunc == nil {
-		panic("nil pointer")
-	}
-	return allocMenuItem(createHandleFunc)
-}
-
-func AllocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
-	if createHandleFunc == nil {
-		panic("nil pointer")
-	}
-	return allocSeparatorMenuItem(createHandleFunc)
-}

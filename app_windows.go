@@ -59,7 +59,7 @@ func nativeExit() {
 
 // TODO: menuItemTable of windows.
 func objectsLeaked() bool {
-	return !defaultObjectTable.Empty() || !menuTable.Empty() || !defaultMenuItemTable.Empty()
+	return !defaultObjectTable.Empty() || !menuTable.Empty()
 }
 
 func printLeakedObjects(w io.Writer) {
@@ -68,8 +68,5 @@ func printLeakedObjects(w io.Writer) {
 	}
 	if !menuTable.Empty() {
 		menuTable.Print("menu table", w)
-	}
-	if !defaultMenuItemTable.Empty() {
-		defaultMenuItemTable.Print("menu item table", w)
 	}
 }

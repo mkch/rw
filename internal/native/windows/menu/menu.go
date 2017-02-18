@@ -24,7 +24,7 @@ func GetMenuItemCount(menu native.Handle) int {
 	return int(C.GetMenuItemCount(C.HMENU(C.PVOID(menu))))
 }
 
-func GetMenuItemInfo(menu native.Handle, item uint, byPos bool, itemInfo *MenuItemInfo) {
+func GetMenuItemInfo(menu native.Handle, item uint, byPos bool, itemInfo *MenuItemInfo) *MenuItemInfo {
 	var info = newMENUITEMINFO(itemInfo)
 	var bp C.BOOL
 	if byPos {
@@ -34,6 +34,7 @@ func GetMenuItemInfo(menu native.Handle, item uint, byPos bool, itemInfo *MenuIt
 		nativeutil.PanicWithLastError()
 	}
 	*itemInfo = *newMenuItemInfo(info)
+	return itemInfo
 }
 
 func SetMenuItemInfo(menu native.Handle, item uint, byPos bool, info *MenuItemInfo) {
@@ -188,4 +189,66 @@ func newMenuItemInfo(p *C.MENUITEMINFO) *MenuItemInfo {
 	C.getMENUITEMINFO(p, &Mask, &Type, &State, &ID, &SubMenu, &CheckedBitmap, &UncheckedBitmap, &ItemData, &TypeData, &Cch, &ItemBitmap)
 	return &MenuItemInfo{uint(Mask), uint(Type), uint(State), uint(ID), native.Handle(C.PVOID(SubMenu)), native.Handle(C.PVOID(CheckedBitmap)),
 		native.Handle(C.PVOID(UncheckedBitmap)), uintptr(ItemData), uintptr(C.PVOID(TypeData)), uint(Cch), native.Handle(C.PVOID(ItemBitmap))}
+}
+
+type MenuInfo struct {
+	Mask          uint
+	Style         uint
+	CyMax         uint
+	BackBrush     native.Handle
+	ContextHelpID uint
+	MenuData      uintptr
+}
+
+const (
+	MIM_APPLYTOSUBMENUS = uint(C.MIM_APPLYTOSUBMENUS)
+	MIM_BACKGROUND      = uint(C.MIM_BACKGROUND)
+	MIM_HELPID          = uint(C.MIM_HELPID)
+	MIM_MAXHEIGHT       = uint(C.MIM_MAXHEIGHT)
+	MIM_MENUDATA        = uint(C.MIM_MENUDATA)
+	MIM_STYLE           = uint(C.MIM_STYLE)
+)
+
+const (
+	MNS_AUTODISMISS = uint(C.MNS_AUTODISMISS)
+	MNS_CHECKORBMP  = uint(C.MNS_CHECKORBMP)
+	MNS_DRAGDROP    = uint(C.MNS_DRAGDROP)
+	MNS_MODELESS    = uint(C.MNS_MODELESS)
+	MNS_NOCHECK     = uint(C.MNS_NOCHECK)
+	MNS_NOTIFYBYPOS = uint(C.MNS_NOTIFYBYPOS)
+)
+
+func SetMenuInfo(menu native.Handle, info *MenuInfo) {
+	if C.SetMenuInfo(C.HMENU(C.PVOID(menu)), &C.MENUINFO{
+		cbSize:          C.DWORD(unsafe.Sizeof(C.MENUINFO{})),
+		fMask:           C.DWORD(info.Mask),
+		dwStyle:         C.DWORD(info.Style),
+		cyMax:           C.UINT(info.CyMax),
+		hbrBack:         C.HBRUSH(C.PVOID(info.BackBrush)),
+		dwContextHelpID: C.DWORD(info.ContextHelpID),
+		dwMenuData:      C.ULONG_PTR(info.MenuData),
+	}) == 0 {
+		nativeutil.PanicWithLastError()
+	}
+}
+
+func GetMenuInfo(menu native.Handle, info *MenuInfo) *MenuInfo {
+	cinfo := &C.MENUINFO{
+		cbSize:          C.DWORD(unsafe.Sizeof(C.MENUINFO{})),
+		fMask:           C.DWORD(info.Mask),
+		dwStyle:         C.DWORD(info.Style),
+		cyMax:           C.UINT(info.CyMax),
+		hbrBack:         C.HBRUSH(C.PVOID(info.BackBrush)),
+		dwContextHelpID: C.DWORD(info.ContextHelpID),
+		dwMenuData:      C.ULONG_PTR(info.MenuData),
+	}
+	if C.GetMenuInfo(C.HMENU(C.PVOID(menu)), cinfo) == 0 {
+		nativeutil.PanicWithLastError()
+	}
+	info.Style = uint(cinfo.dwStyle)
+	info.CyMax = uint(cinfo.cyMax)
+	info.BackBrush = native.Handle(C.PVOID(cinfo.hbrBack))
+	info.ContextHelpID = uint(cinfo.dwContextHelpID)
+	info.MenuData = uintptr(cinfo.dwMenuData)
+	return info
 }

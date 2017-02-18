@@ -7,33 +7,62 @@ import (
 	"github.com/mkch/rw/internal/native/windows/window/winutil"
 	"github.com/mkch/rw/native"
 	"github.com/mkch/rw/util"
+	"unicode"
 )
 
 type WindowPlatformSpecific Windows_WindowMessageReceiver
 
 type windowExtra interface {
-	accelTable() *acceltable.AccelTable
-	menuItemTable() util.ObjectTable
+	addMenuItemAccelerator(item MenuItem)
+	removeMenuItemAccelerator(id uint16)
 }
 
 type windowBase struct {
 	objectBase
-	wrapper      util.WrapperImpl
-	content      Container
-	menu         Menu
-	dialogResult interface{}
-	accel        acceltable.AccelTable
-	prevWndProc  uintptr
-	onClose      event.Hub
-	menuItemTab  util.ObjectTable
+	wrapper       util.WrapperImpl
+	content       Container
+	menu          Menu
+	dialogResult  interface{}
+	accel         acceltable.AccelTable
+	prevWndProc   uintptr
+	onClose       event.Hub
+	menuItemAccel map[uint16]MenuItem // Accel id to MenuItem
 }
 
-func (w *windowBase) menuItemTable() util.ObjectTable {
-	return w.menuItemTab
+func (w *windowBase) addMenuItemAccelerator(item MenuItem) {
+	var id uint16
+	// Use 100 as the first id to avoid some predefined IDs, ID_OK etc.
+	for id = uint16(100); id < 0xFFFF; id++ {
+		if _, exists := w.menuItemAccel[id]; !exists {
+			break
+		}
+	}
+	if id == 0 {
+		panic("Run out of accelerator id")
+	}
+	mod, key := item.KeyboardShortcut()
+	// http://stackoverflow.com/questions/23592079/why-does-createacceleratortable-not-work-without-fvirtkey
+	//https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
+	var fVirt byte = acceltable.FVIRTKEY
+	k := unicode.ToUpper(key) // Virtual key code.
+	if mod&ControlKey != 0 {
+		fVirt |= acceltable.FCONTROL
+	}
+	if mod&AltKey != 0 {
+		fVirt |= acceltable.FALT
+	}
+	if mod&ShiftKey != 0 {
+		fVirt |= acceltable.FSHIFT
+	}
+	w.accel.Add(fVirt, uint16(k), id)
+	w.menuItemAccel[id] = item
+	item.setId(id)
 }
 
-func (w *windowBase) accelTable() *acceltable.AccelTable {
-	return &w.accel
+func (w *windowBase) removeMenuItemAccelerator(id uint16) {
+	w.accel.Remove(id)
+	w.menuItemAccel[id].setId(0)
+	delete(w.menuItemAccel, id)
 }
 
 func (w *windowBase) translateAccelerator(msg window.PMsg) bool {
@@ -158,21 +187,31 @@ func (w *windowBase) Windows_WndProc(handle native.Handle, msg uint, wParam, lPa
 		}
 	case window.WM_COMMAND:
 		if lParam == 0 {
-			h, l := window.HIWORD(uint(wParam)), window.LOWORD(uint(wParam))
-			switch h {
-			case 0: // Menu, l is menu id
-				w.handleMenuCommand(native.Handle(l))
-			case 1: // Accelerator, l is accelerator id
-				w.handleMenuCommand(native.Handle(l))
+			high, low := window.HIWORD(uint(wParam)), window.LOWORD(uint(wParam))
+			switch high {
+			case 0: // Menu, low is menu id
+				// Do nothing. WM_MENUCOMMAND is used for menus items(see SetMenuInfo and MNS_NOTIFYBYPOS).
+			case 1: // Accelerator, low is accelerator id
+				w.handleAccelCommand(low)
 			}
 		}
+	case window.WM_MENUCOMMAND:
+		w.handleMenuCommand(native.Handle(lParam), int(wParam))
 	}
 	return window.CallWindowProc(w.prevWndProc, handle, msg, wParam, lParam)
 }
 
-func (w *windowBase) handleMenuCommand(item native.Handle) {
-	if menuItem, ok := w.menuItemTab.Query(item).(MenuItem); ok && menuItem.OnClick().HasHandler() {
+func (w *windowBase) handleAccelCommand(id uint16) {
+	if menuItem, exists := w.menuItemAccel[id]; exists && menuItem.OnClick().HasHandler() {
 		menuItem.OnClick().Send(&simpleEvent{sender: menuItem})
+	}
+}
+
+func (w *windowBase) handleMenuCommand(menuHandle native.Handle, index int) {
+	if menu, ok := menuTable.Query(menuHandle).(Menu); ok {
+		if menuItem := menu.uiItem(index); menuItem.OnClick().HasHandler() {
+			menuItem.OnClick().Send(&simpleEvent{sender: menuItem})
+		}
 	}
 }
 
@@ -228,7 +267,7 @@ func (m windowHandleManager) Create(b util.Bundle) native.Handle {
 }
 
 func initWindow(w *windowBase, createHandleFunc func(util.Bundle) native.Handle) *windowBase {
-	w.menuItemTab = util.NewObjectTable()
+	w.menuItemAccel = make(map[uint16]MenuItem)
 	w.wrapper.SetHandleManager(windowHandleManager{hwndManager(createHandleFunc)})
 	w.wrapper.AfterRegistered().AddHook(w.afterRegistered)
 	return w

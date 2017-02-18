@@ -197,3 +197,17 @@ func allocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
 func allocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
 	return allocMenuItem(createHandleFunc)
 }
+
+func AllocMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocMenuItem(createHandleFunc)
+}
+
+func AllocSeparatorMenuItem(createHandleFunc func(util.Bundle) native.Handle) MenuItem {
+	if createHandleFunc == nil {
+		panic("nil pointer")
+	}
+	return allocSeparatorMenuItem(createHandleFunc)
+}

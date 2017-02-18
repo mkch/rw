@@ -87,15 +87,22 @@ func itemOpTest(t *testing.T, win rw.Window) rw.Menu {
 				return true
 			}).
 		End().
-		BeginItem("6").End().
+		BeginItem("6").
+		BeginSubmenu().
+		BeginItem("6 sub 1").End().
+		BeginItem("6 sub 2").SetOnClickListener(func() { fmt.Println("6 sub 2") }).End().
+		End().
+		End().
 		Build()
+	itemWithShortcut := m1.Item(0)
+	item6 := m1.Item(1)
 	m2 := menu.NewBuilder().
-		BeginItem("5").End().
+		BeginItem("5").
+		End().
 		BeginItem("2").End().
 		BeginItem("1").End().
 		BeginItem("4").End().
 		Build()
-
 	var m rw.Menu
 	op := menu.NewItemBuilder(nil, nil).
 		SetTitle("Sort").
@@ -129,6 +136,30 @@ func itemOpTest(t *testing.T, win rw.Window) rw.Menu {
 				}
 				return true
 			}).Build()
+	h3 := menu.NewItemBuilder(nil, nil).
+		SetTitle("Hide 3").
+		SetOnClickListener(func(event event.Event) bool {
+			sender := event.Sender().(rw.MenuItem)
+			itemWithShortcut.SetVisible(!itemWithShortcut.Visible())
+			if itemWithShortcut.Visible() {
+				sender.SetTitle("Hide 3")
+			} else {
+				sender.SetTitle("Show 3")
+			}
+			return true
+		}).Build()
+	h6 := menu.NewItemBuilder(nil, nil).
+		SetTitle("Hide 6").
+		SetOnClickListener(func(event event.Event) bool {
+			sender := event.Sender().(rw.MenuItem)
+			item6.SetVisible(!item6.Visible())
+			if item6.Visible() {
+				sender.SetTitle("Hide 6")
+			} else {
+				sender.SetTitle("Show 6")
+			}
+			return true
+		}).Build()
 	x := menu.NewItemBuilder(nil, nil).
 		SetTitle("Exit").
 		SetMnemonic('x').
@@ -144,6 +175,9 @@ func itemOpTest(t *testing.T, win rw.Window) rw.Menu {
 			BeginItem("Menu").
 			BeginSubmenu().
 			AddItem(op).
+			AddSeparator().
+			AddItem(h3).
+			AddItem(h6).
 			AddSeparator().
 			AddItem(x).
 			End().
